@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+    <title>Image Upload Test</title>
+</head>
+<body>
+
+
+    <form id="postform" >
+
+
+        <input type="text" name="price" id="price">
+        <input type="text" name="description" id="description">
+        <input type="file" name="image" id="image" accept="image/*">
+        <input type="submit" value="Upload" id="upload">
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            myForm = document.getElementById("postform");
+
+            myForm.addEventListener("submit", function (e) {
+
+                e.preventDefault();
+
+                const formData = new FormData(myForm);
+
+                image = formData.get("image")
+                price = formData.get("price")
+                description = formData.get("description")
+                console.log(image)
+                console.log(price)
+                console.log(description)
+
+                fetch("/upload-promotion", {
+                    method: "POST",
+                    body: formData
+                }).then(function (response) {
+                    return response.text();
+                }).then(function (text) {
+                    console.log(text);
+                    document.getElementById("response").innerHTML = text;
+                }).catch(function (err) {
+                    console.log(err);
+                })
+
+            })
+
+
+
+    
+
+
+        });
+        
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Appointment</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <style>
+        /* Custom styles for mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .words {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .max-w-lg {
+                max-width: 90%;
+            }
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Header Section (Same as before) -->
+
+    <div class="flex flex-col md:flex-row">
+        <div class="words w-full md:w-1/2 mt-10 md:ml-10 text-center md:text-left">
+            <p class="text-3xl font-bold pb-6">Step 1</p>
+            <p>Pick a date, and we'll check if the slot is free</p>
+            <p id="message" class="mt-2"></p>
+        </div>
+        <div class="container mx-auto mt-10 md:w-1/2">
+            <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-center mb-4">When do you prefer to come?</h2>
+                <form id="appointment-form" action="/step2" method="GET">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="date">Date</label>
+                        <input onchange="checkSchedules()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="date" name="date" type="date" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="next-button" class="bg-black hover:bg-white text-white hover:text-black border-2 border-black rounded-sm h-12 w-40 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled" type="button">Next</button>
+                    </div>
+                </form>
+
+                <div id="confirmation" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/javascript/tailwind-config.js"></script>
+    <script src="/static/javascript/custom.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            var dateInput = document.getElementById("date");
+            var nextButton = document.getElementById("next-button");
+
+            nextButton.addEventListener('click', function () {
+                goToStep2();
+            });
+
+            dateInput.addEventListener('change', function () {
+                checkSchedules(dateInput.value);
+            });
+
+            function checkSchedules(date) {
+                if (!date) {
+                    nextButton.classList.add('disabled');
+                    return;
+                }
+
+                fetch(`/check-date?date=${date}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let scheduleList = document.getElementById('message');
+                        if (data.hasSchedules) {
+                            scheduleList.classList.remove('text-green-500');
+                            scheduleList.classList.add('text-red-500');
+                            scheduleList.innerHTML = 'This day has appointments. Please choose another date.';
+                            nextButton.classList.add('disabled');
+                        } else {
+                            scheduleList.classList.remove('text-red-500');
+                            scheduleList.classList.add('text-green-500');
+                            scheduleList.innerHTML = 'An appointment can be scheduled on this day. Press Next to continue.';
+                            nextButton.classList.remove('disabled');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching schedules:', error);
+                    });
+            }
+        });
+
+        function goToStep2() {
+            const dateInput = document.getElementById('date');
+            const selectedDate = dateInput.value;
+
+            if (selectedDate) {
+                // Redirect to step 2 with the selected date as a query parameter
+                window.location.href = `/step2?date=${encodeURIComponent(selectedDate)}`;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

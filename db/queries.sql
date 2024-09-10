@@ -1,0 +1,1 @@
+INSERT INTO images (image_link, collection_id) VALUES ('/static/images/1.jpeg', 1)

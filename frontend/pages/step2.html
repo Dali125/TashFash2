@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 2 - Confirm Appointment</title>
+
+    <style>
+        /* Custom styles for mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .words {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .max-w-lg {
+                max-width: 90%;
+            }
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Checkmark animation */
+        .checkmark-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .checkmark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #4CAF50;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #4CAF50;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+            position: relative;
+            top: 5px;
+        }
+
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #4CAF50;
+            fill: none;
+            animation: stroke .6s cubic-bezier(.65, .05, .36, 1) forwards;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke .3s cubic-bezier(.65, .05, .36, 1) .7s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px #4CAF50;
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body class="w-full h-screen scroll-smooth">
+
+    <header class="bg-black text-white md:hidden">
+        <div class="flex justify-between items-center p-4">
+            <a href="/" class="text-3xl font-bold">TASHFASH</a>
+            <button id="menu-toggle" class="lg:hidden focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <nav id="menu" class="hidden lg:flex flex-col lg:flex-row lg:items-center lg:space-x-8 bg-black lg:bg-transparent text-white">
+            <a href="/" class="block px-4 py-2 lg:py-0">Home</a>
+            <a href="about.html" class="block px-4 py-2 lg:py-0">About Us</a>
+            <a href="shop.html" class="block px-4 py-2 lg:py-0">Shop</a>
+            <a href="glass.html" class="block px-4 py-2 lg:py-0">Glasses</a>
+            <a href="contact.html" class="block px-4 py-2 lg:py-0">Contact Us</a>
+        </nav>
+    </header>
+
+    <div class="flex flex-col md:flex-row">
+        <div class="words w-full md:w-1/2 mt-10 md:ml-10 text-center md:text-left">
+            <p class="text-3xl font-bold pb-6">Step 2 - Confirm Your Appointment</p>
+            <p class="text-3xl">You have selected the date: {{ .date }}</p>
+            <p id="message" class="mt-2"></p>
+        </div>
+        <div class="container mx-auto mt-10 md:w-1/2">
+            <div id="form-container" class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold text-center mb-4">Fill in the Form to complete the application</h2>
+                <form id="appointment-form" hx-post="/finalize" hx-target="#form-container" hx-swap="outerHTML">
+                    <input type="hidden" name="date" value="{{ .date }}">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="first_name">First Name</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="first_name" name="first_name" type="text" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">Last Name</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="last_name" name="last_name" type="text" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" name="email" type="email" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="phone">Phone Number</label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="phone" name="phone" type="tel" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="description">Description</label>
+                        <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" name="description" rows="4" required></textarea>
+                    </div>
+
+                    <div class="text-center">
+                        <button  id="next-button" class="bg-black hover:bg-white text-white hover:text-black border-2 border-black rounded-sm h-12 w-52 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Submit Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-black py-12">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-white px-6">
+            <!-- Contact Us -->
+            <div>
+                <h5 class="text-xl font-semibold mb-4">Contact Us</h5>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="/static/images/location.png" alt="Location" class="w-6 h-6">
+                        <a href="#" class="text-gray-400 hover:text-white">Location</a>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <img src="/static/images/call.png" alt="Call" class="w-6 h-6">
+                        <a href="tel:+260979389797" class="text-gray-400 hover:text-white">Call +260 979 389797</a>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <img src="/static/images/message.png" alt="Message" class="w-6 h-6">
+                        <a href="mailto:info@tashfash.com" class="text-gray-400 hover:text-white">info@tashfash.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <div>
+                <h5 class="text-xl font-semibold mb-4">Our Pages</h5>
+                <ul class="space-y-4">
+                    <li><a href="/" class="text-gray-400 hover:text-white">Home</a></li>
+                    <li><a href="about.html" class="text-gray-400 hover:text-white">About Us</a></li>
+                    <li><a href="shop.html" class="text-gray-400 hover:text-white">Shop</a></li>
+                    <li><a href="glass.html" class="text-gray-400 hover:text-white">Glasses</a></li>
+                    <li><a href="contact.html" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <!-- Follow Us -->
+            <div>
+                <h5 class="text-xl font-semibold mb-4">Follow Us</h5>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <img src="/static/images/facebook.png" alt="Facebook" class="w-6 h-6">
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <img src="/static/images/twitter.png" alt="Twitter" class="w-6 h-6">
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <img src="/static/images/instagram.png" alt="Instagram" class="w-6 h-6">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/javascript/tailwind-config.js"></script>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+
+            const form = document.getElementById('appointment-form');
+            const nextButton = document.getElementById('next-button');
+            const myParams = new URLSearchParams(window.location.search);
+
+            console.log(myParams.get('date'));
+
+            nextButton.addEventListener('click', async function(event) {
+                event.preventDefault();
+                let myForm = new FormData(form);
+                myForm.append('date', myParams.get('date'));
+              
+                console.log(myForm)
+                try {
+
+                    const response = await fetch('/submit-appointment', {
+                        'method': 'POST',
+                        'body': myForm
+                    })
+                    if (!response.ok) {
+                        Toastify({
+                            text: "An error has occured, please try again in a few minutes",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            stopOnFocus: true,
+                            style: {
+                              background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            },
+                            onClick: function(){} 
+                          }).showToast();
+                        alert('An error has occured, please try again in a few minutes');
+                        return;
+                    }
+                    data = await response.json();
+                    if (data === null){
+                        console.log("nothing to return")
+                    }
+                    if (response.ok){
+                        Toastify({
+                            text: "Appointment Submitted",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            stopOnFocus: true,
+                            style: {
+                              background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            },
+                            onClick: function(){} 
+                          }).showToast();
+                          //Delay for 2 seconds
+                          setTimeout(() => {
+                            window.location.href = "/";
+                          }, 2000);
+                        // window.location.href = "/confirmation.html?date=" + myParams.get('date');
+                    }
+                    console.log(data);
+                    
+                } catch (err) {
+                    console.error(err)
+                    
+                }
+            });
+
+        })
+  
+    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+</body>
+
+</html>

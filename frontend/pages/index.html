@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+
+  <title>TashFash</title>
+  <link rel="icon" type="image/png" href="/static/images/3.jpeg">
+
+  <!-- slider stylesheet -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
+
+  <!-- bootstrap core css
+  <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" /> -->
+
+  <!-- fonts style -->
+  <!-- <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet"> -->
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" href="../static/css/style.css" />
+  <!-- responsive style -->
+  <link href="/static/css/responsive.css" rel="stylesheet" />
+
+  <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+  <style>
+    @keyframes appear {
+      from {
+        opacity: 0;
+        scale: 0.5;
+      }
+
+      to {
+        opacity: 1;
+        scale: 1;
+      }
+    }
+
+    .sroll-smooth {
+      scroll-behavior: smooth;
+    }
+    .animate-gradient {
+      background-size: 500% 500%;
+      animation: infinite pulse-gradient 7s ease-in-out;
+    }
+    @keyframes pulse-gradient {
+      0% {
+        background-position: 0 0;
+      } 
+
+      50% {
+        background-position: 100% 0;
+      }
+      100% {
+        background-position: 0 0;
+      }
+      
+    }
+  
+  </style>
+</head>
+
+<body class="w-full h-screen scroll-smooth">
+  <div>
+    <header class="bg-black text-white md:hidden">
+      <div class="flex justify-between items-center p-4">
+        <a href="/" class="text-3xl font-bold">TASHFASH</a>
+        <button type="button" onclick="openNav()" class="lg:hidden focus:outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+        </button>
+      </div>
+      <nav id="menu"
+        class="hidden lg:flex flex-col lg:flex-row lg:items-center lg:space-x-8 bg-black lg:bg-transparent text-white">
+        <a href="/" class="block px-4 py-2 lg:py-0">Home</a>
+        <a href="/about" class="block px-4 py-2 lg:py-0">About Us</a>
+        <a href="/apply" class="block px-4 py-2 lg:py-0">Schedule Appointment</a>
+        
+        <a href="/contact" class="block px-4 py-2 lg:py-0">Contact Us</a>
+      </nav>
+    </header>
+    <!-- header section strats -->
+    <header class="hidden md:flex w-full">
+      <nav class="flex w-full justify-between items-center bg-black text-white h-20 px-4">
+        <a href="/" class="text-3xl font-bold">
+          TASHFASH
+        </a>
+        <ul class="flex flex-row gap-10">
+          <li>
+            <a class="text-white hover:text-gray-300" href="/">Home</a>
+          </li>
+          <li>
+            <a class="text-white hover:text-gray-300" href="about.html">About Us</a>
+          </li>
+          <li>
+            <a class="text-white hover:text-gray-300" href="/apply">Shedule Appointment</a>
+          </li>
+
+          <li>
+            <a class="text-white hover:text-gray-300" href="/contact">Contact Us</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- end header section -->
+    <!-- slider section -->
+
+
+    <div class="w-full h-[800px] bg-red-400  flex lg:flex flex-col md:flex-col lg:flex-row">
+
+      <div class="h-full lg:w-1/2 md:w-screen bg-white  text-center flex justify-center flex-col items-center">
+
+        <div class=" text-center text-black">
+          <h1 class="text-6xl font-bold">WELCOME TO</h1>
+          <h2 class="text-5xl"><span class="animate-gradient text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-pink-800">TASHFASH</span> Designs</h2>
+
+          <a class="h-16 shadow-lg w-72 flex rounded-sm mt-20 pl-6 pr-6 justify-center items-center text-white bg-black hover:bg-white border-2 border-white hover:border-black   inline-flex "
+            href="#collections">View Collections</a>
+        </div>
+
+      </div>
+
+      <div
+        class="h-full relative hidden  lg:w-1/2 md:w-screen bg-white lg:flex lg:flex-row text-center items-center justify-center sm:flex-col">
+
+        <div class="bg-blue-200 rounded-full h-52 w-52 blur-3xl animate-scale  absolute"></div>
+        <div class="bg-blue-200 rounded-full h-72 w-72 blur-3xl animate-scale absolute"></div>
+        <div class="bg-amber-200 h-52 w-52 blur-3xl rounded-full delay-300 animate-scale  absolute"></div>
+        <div class="h-full absolute herobg w-full ">
+
+        </div>
+
+
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- <section class="bg-cover bg-center h-screen w-full flex  items-center herobg pl-20">
+      <div class=" text-center text-black blur">
+        <h1 class="text-6xl font-bold">WELCOME TO</h1>
+        <h2 class="text-5xl">TASHFASH Designs</h2>
+
+        <button class="bg-white text-black border-2 border-black rounded-sm  h-12 w-40 hover:bg-black hover:text-white hover:border-white">Explore Collections</button>
+      </div>
+     
+    </section> -->
+  <!-- end slider section -->
+  </div>
+
+  <!-- TODO: Something-->
+  <section class="applybg h-1/2 flex w-full pl-10 flex-col">
+    <div class="flex flex-col items-center justify-center md:items-start">
+
+
+      <p class="text-black pb-10 mt-20 text-2xl md:text-4xl lg:text-6xl font-bold">SCHEDULE AN APPOINTMENT</p>
+
+      <a class="h-16 w-72 flex rounded-sm mt-20 pl-6 pr-6 justify-center items-center text-white bg-black hover:bg-white border-2 border-white hover:border-black   "
+        href="/apply">Schedule an Appointment</a>
+    </div>
+
+
+
+  </section>
+
+  <!-- glass section -->
+
+  <section id="collections" class="bg-black">
+    <div class="pl-20 pr-20 pt-20 pb-32 flex flex-col items-center text-center">
+      <p class="text-white pb-20 text-2xl md:text-4xl lg:text-6xl font-bold">Explore Our Latest Collection</p>
+      <ul class="grid grid-cols-1 md:grid-cols-2 lg:flex lg:space-x-4 gap-4">
+        <li class="fashion_image">
+          <img src="/static/images/6.jpeg" alt="Fashion Image 6" class="w-full" loading="lazy" width="300" height="400">
+        </li>
+        <li class="fashion_image">
+          <img src="/static/images/16.jpeg" alt="Fashion Image 16" class="w-full" loading="lazy" width="300"
+            height="400">
+        </li>
+        <li class="fashion_image">
+          <img src="/static/images/20.jpeg" alt="Fashion Image 20" class="w-full" loading="lazy" width="300"
+            height="400">
+        </li>
+        <li class="fashion_image">
+          <img src="/static/images/15.jpeg" alt="Fashion Image 15" class="w-full" loading="lazy" width="300"
+            height="400">
+        </li>
+      </ul>
+
+      <a class="h-16 w-72 flex rounded-sm mt-20 justify-center items-center text-white bg-black hover:bg-white border-2 border-white hover:border-black"
+        href="/collections">View All</a>
+    </div>
+  </section>
+
+  <section id="collections" class="bg-gray-200 py-20">
+    <div class="max-w-screen-xl mx-auto px-6 text-center">
+      <p class="text-black text-2xl md:text-4xl lg:text-6xl font-bold mb-12">Check Out Our Latest Promotions</p>
+      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
+          <img src="/static/images/6.jpeg" alt="Fashion Image 6" class="w-full h-80 object-cover" loading="lazy">
+          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
+            <p class="text-lg font-semibold">Wedding Dress</p>
+            <p class="text-xl font-bold">K20</p>
+          </div>
+        </li>
+        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
+          <img src="/static/images/16.jpeg" alt="Fashion Image 16" class="w-full h-64 object-cover" loading="lazy">
+          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
+            <p class="text-lg font-semibold">Wedding Dress</p>
+            <p class="text-xl font-bold">K20</p>
+          </div>
+        </li>
+        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
+          <img src="/static/images/20.jpeg" alt="Fashion Image 20" class="w-full h-64 object-cover" loading="lazy">
+          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
+            <p class="text-lg font-semibold">Wedding Dress</p>
+            <p class="text-xl font-bold">K20</p>
+          </div>
+        </li>
+        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
+          <img src="/static/images/15.jpeg" alt="Fashion Image 15" class="w-full h-64 object-cover" loading="lazy">
+          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
+            <p class="text-lg font-semibold">Wedding Dress</p>
+            <p class="text-xl font-bold">K20</p>
+          </div>
+        </li>
+      </ul>
+  
+      <a class="mt-12 inline-block px-6 py-3 rounded-md text-white bg-black border-2 border-black transition-colors"
+        href="/collections">View All</a>
+    </div>
+  </section>
+  
+
+
+
+  <!-- end glass section -->
+
+  <!-- quality section -->
+
+  <section class="bg-white py-16">
+    <div class="container mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-semibold  mb-6">Our Services</h2>
+      <p class="text-gray-800 max-w-xl mx-auto mb-12">Elevate Your Events and Functions with Our Exceptional and
+        Comprehensive Services Today</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-8">
+        <!-- UX Design Card -->
+        <div class="bg-gray-200 rounded-lg p-6 shadow-lg text-black">
+          <div class="flex justify-center mb-4">
+            <div class="bg-green-500 p-3 rounded-full">
+              <!-- Icon (use an actual icon instead of this placeholder) -->
+              <span class=" text-3xl">🚀</span>
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold  mb-2">Tailor Sewing</h3>
+          <p class="text-gray-800 mb-4"> Tailoring your event to perfection. </p>
+          <a href="#" class="inline-block text-white bg-gray-700 hover:bg-gray-600 rounded-full px-6 py-2">View more</a>
+        </div>
+
+        <!-- Branding Card -->
+        <div class="bg-gray-200 rounded-lg p-6 shadow-lg text-black">
+          <div class="flex justify-center mb-4">
+            <div class="bg-green-500 p-3 rounded-full">
+              <!-- Icon (use an actual icon instead of this placeholder) -->
+              <span class=" text-3xl">🚀</span>
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold  mb-2"> Measurement</h3>
+          <p class="text-gray-800 mb-4"> Measuring your event to perfection.</p>
+          <a href="#" class="inline-block text-white bg-gray-700 hover:bg-gray-600 rounded-full px-6 py-2">View more</a>
+        </div>
+
+        <!-- 3D Design Card -->
+        <div class="bg-gray-200 rounded-lg p-6 shadow-lg text-black">
+          <div class="flex justify-center mb-4">
+            <div class="bg-green-500 p-3 rounded-full">
+              <!-- Icon (use an actual icon instead of this placeholder) -->
+              <span class=" text-3xl">🚀</span>
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold  mb-2"> 3D Design </h3>
+          <p class="text-gray-800 mb-4">Crafting seamless user experiences with elegant and intuitive design.</p>
+          <a href="#" class="inline-block text-white bg-gray-700 hover:bg-gray-600 rounded-full px-6 py-2">View more</a>
+        </div>
+
+        <!-- Illustration Card -->
+        <div class="bg-gray-200 rounded-lg p-6 shadow-lg text-black">
+          <div class="flex justify-center mb-4">
+            <div class="bg-green-500 p-3 rounded-full">
+              <!-- Icon (use an actual icon instead of this placeholder) -->
+              <span class=" text-3xl">🚀</span>
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold  mb-2"> 3D Design </h3>
+          <p class="text-gray-800 mb-4">Crafting seamless user experiences with elegant and intuitive design.</p>
+          <a href="#" class="inline-block text-white bg-gray-700 hover:bg-gray-600 rounded-full px-6 py-2">View more</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+  <!-- end client section -->
+
+  <!-- footer section -->
+  <footer class="bg-black py-12">
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-white px-6">
+      <!-- Contact Us -->
+      <div>
+        <h5 class="text-xl font-semibold mb-4">Contact Us</h5>
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3">
+            <img src="/static/images/location.png" alt="Location" class="w-6 h-6">
+            <a href="#" class="text-gray-400 hover:text-white">Location</a>
+          </div>
+          <div class="flex items-center space-x-3">
+            <img src="/static/images/call.png" alt="Call" class="w-6 h-6">
+            <a href="tel:+260979389797" class="text-gray-400 hover:text-white">Call +260 979 389797</a>
+          </div>
+          <div class="flex items-center space-x-3">
+            <img src="/static/images/mail.png" alt="Mail" class="w-6 h-6">
+            <a href="mailto:tashfashdesigns@gmail.com"
+              class="text-gray-400 hover:text-white">tashfashdesigns@gmail.com</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow Us -->
+      <div>
+        <h5 class="text-xl font-semibold mb-4">Follow Us</h5>
+        <div class="flex space-x-4">
+          <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
+            <img src="/static/images/fb.png" alt="Facebook" class="w-6 h-6">
+          </a>
+          <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
+            <img src="/static/images/twitter.png" alt="Twitter" class="w-6 h-6">
+          </a>
+          <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
+            <img src="/static/images/instagram.png" alt="Instagram" class="w-6 h-6">
+          </a>
+          <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
+            <img src="/static/images/linkedin.png" alt="LinkedIn" class="w-6 h-6">
+          </a>
+        </div>
+      </div>
+
+      <!-- Subscribe -->
+      <div>
+        <h5 class="text-xl font-semibold mb-4">Subscribe</h5>
+        <div class="flex items-center space-x-3">
+          <input type="email" placeholder="Enter your email"
+            class="w-full px-4 py-2 rounded-md bg-gray-800 text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+          <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500">Subscribe</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 border-t border-gray-700 pt-6 text-center text-gray-500">
+      <p>&copy; 2024 Tashfash Designs. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+
+  <script>
+      function openNav(){
+      
+        const menu = document.getElementById("menu");
+    menu.classList.toggle("hidden");
+
+      }
+    document.addEventListener("DOMContentLoaded", function () {
+
+    
+
+      //Display the promotion image on the landing page
+      getPromotion()
+
+
+    });
+
+    async function getPromotion() {
+
+      console.log("Displaying promotion")
+
+      var dataSend
+
+      try {
+        result = await fetch("/get-promotions", {
+          method: "GET",
+        }).then((res) => data = res.json()
+
+        ).then((data) => dataSend = {
+          ID: data.data.id,
+          image: data.data.image_url,
+          price: data.data.price,
+          description: data.data.description
+        })
+          .catch((err) => console.log(err))
+
+      } catch (err) {
+        console.log(err)
+      }
+
+
+      console.log(dataSend.id)
+      console.log(dataSend.image)
+      console.log(dataSend.description)
+
+      var promo = document.getElementById("promotions");
+      promo.classList = "bg-white relative flex w-full h-1/2 justify-center"
+      promo.innerHTML = `
+      
+      <div>
+        <h2 class="text-black pt-20 pb-20 text-2xl md:text-4xl lg:text-6xl font-bold">Check out Our Latest Promotion</h2>
+      
+         <div class=" relative inline-block"> 
+          <img src="${dataSend.image}" alt="Promotion" class="w-full h-auto" loading="lazy" width="400" height="500">
+    >
+      <p class="absolute text-3xl font-bold">${dataSend.price}</p>
+      <p class="absolute top-24 right-3 text-3xl font-bold">${dataSend.description}</p>
+      </div>
+      </div>`
+      
+     
+      return dataSend;
+
+
+
+
+    }
+  </script>
+
+  <script src="/static/javascript/tailwind-config.js"></script>
+
+</body>
+
+</html>

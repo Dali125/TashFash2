@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ open: false }">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TashFash Dash</title>
+    <link rel="stylesheet" href="/static/css/schedule.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- Desktop Sidebar -->
+        <div class="fixed h-full w-64 z-10 shadow-md border-r bg-white hidden md:flex flex-col">
+            <div class="h-16 flex justify-center items-center">
+                <h1 class="text-4xl">TashFash Admin</h1>
+            </div>
+            <ul class="flex flex-col pt-6 space-y-2">
+                <a class="pl-4 py-2 bg-gray-400 hover:bg-gray-300" href="/dashboard">Dashboard</a>
+                <a class="pl-4 py-2 hover:bg-gray-200" href="/schedule">Schedule</a>
+                <a class="pl-4 py-2 hover:bg-gray-200">Notifications</a>
+                <a class="pl-4 py-2 hover:bg-gray-200" href="/picture_collection">Picture Collection</a>
+                <li class="pl-4 py-2 cursor-pointer">Logout</li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="md:ml-64 flex-1">
+            <!-- Top Navigation -->
+            <div class="w-full h-16 bg-black flex justify-between items-center px-4 fixed top-0 z-10">
+                <h1 class="text-white text-2xl">TashFash Dash</h1>
+                <button class="text-white md:hidden" @click="open = !open">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Dashboard content -->
+            <div class="mt-20 p-4">
+                <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+                    <!-- Card Template -->
+                    <div class="rounded-xl border bg-white text-black shadow p-6 flex flex-col justify-between">
+                        <h3 class="tracking-tight text-sm font-medium">Total Pending Requests</h3>
+                        <div class="text-2xl font-bold" id="total_revenue">-</div>
+                        <p class="text-xs text-gray-500">+20.1% from last month</p>
+                    </div>
+
+                    <div class="rounded-xl border bg-white text-black shadow p-6 flex flex-col justify-between">
+                        <h3 class="tracking-tight text-sm font-medium">Accepted Appointments</h3>
+                        <div class="text-2xl font-bold" id="accepted-appointments">-</div>
+                        <p class="text-xs text-gray-500">+180.1% from last month</p>
+                    </div>
+
+                    <div class="rounded-xl border bg-white text-black shadow p-6 flex flex-col justify-between">
+                        <h3 class="tracking-tight text-sm font-medium">Appointments Today</h3>
+                        <div class="text-2xl font-bold" id="todays-appointments">-</div>
+                        <p class="text-xs text-gray-500">+19% from last month</p>
+                    </div>
+
+                    <div class="rounded-xl border bg-white text-black shadow p-6 flex flex-col justify-between">
+                        <h3 class="tracking-tight text-sm font-medium">Active Now</h3>
+                        <div class="text-2xl font-bold">+573</div>
+                        <p class="text-xs text-gray-500">+201 since last hour</p>
+                    </div>
+                </div>
+
+                <!-- Recent Appointments Section -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold mb-2">Recent Appointments</h3>
+
+                    <div id="appointments" class="space-y-4">
+                        <!-- Appointment Card -->
+                        <div class="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row items-start md:items-center">
+                            <div class="ml-4 flex-1">
+                                <p class="text-sm font-medium">Olivia Martin</p>
+                                <p class="text-sm text-gray-500">olivia.martin@email.com</p>
+                                <p class="text-sm text-gray-500 mt-2">Applied for appointment on: <span
+                                        class="font-medium">2024-09-15</span></p>
+                            </div>
+                            <div class="flex space-x-2 mt-2 md:mt-0">
+                                <button class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">View</button>
+                                <button
+                                    class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">Accept</button>
+                                <button
+                                    class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600">Decline</button>
+                            </div>
+                        </div>
+
+                        <!-- Repeat Appointment Card as needed -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="open" x-transition class="fixed inset-0 bg-white z-50 md:hidden">
+            <ul class="flex flex-col p-6 space-y-2">
+                <a class="py-2 hover:bg-gray-200" href="/dashboard">Dashboard</a>
+                <a class="py-2 hover:bg-gray-200" href="/schedule">Schedule</a>
+                <a class="py-2 hover:bg-gray-200">Notifications</a>
+                <a class="py-2 hover:bg-gray-200" href="/picture_collection">Picture Collection</a>
+                <li class="py-2 cursor-pointer">Logout</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/static/javascript/tailwind-config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            await fetchDashBoardData();
+        });
+
+        async function fetchDashBoardData() {
+    try {
+        const response = await fetch('/dashboardData', { method: 'GET' });
+        if (!response.ok) throw new Error("Error Getting Data" + response.status);
+
+        const data = await response.json();
+        document.getElementById('total_revenue').innerText = data.pending;
+        document.getElementById('accepted-appointments').innerText = data.approved;
+        document.getElementById('todays-appointments').innerText = data.today_count;
+
+        let appointJson = data.applications;
+
+        // Loop through the application data
+        appointJson.forEach(element => {
+            console.log(element.email);
+
+            // Create appointment card
+            const card = document.createElement('div');
+            card.classList = 'bg-white rounded-lg shadow p-4 flex flex-col md:flex-row items-start md:items-center';
+            card.innerHTML = `
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium">${element.name}</p>
+                    <p class="text-sm text-gray-500">${element.email}</p>
+                    <p class="text-sm text-gray-500 mt-2">Applied for appointment on: 
+                        <span class="font-medium">${element.date}</span>
+                    </p>
+                </div>
+                <div class="flex space-x-2 mt-2 md:mt-0">
+                    <button class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 view-btn">View</button>
+                    <button class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">Accept</button>
+                    <button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600">Decline</button>
+                </div>
+            `;
+
+            // Append the new card to the appointments section
+            document.getElementById('appointments').appendChild(card);
+
+            // Add event listener to the "View" button within this card
+            card.querySelector('.view-btn').addEventListener('click', () => {
+                window.location.href = "/view_application?id=" + encodeURIComponent(element.id) + 
+                                       "&email=" + encodeURIComponent(element.email) + 
+                                       "&date=" + encodeURIComponent(element.date) + 
+                                       "&phone_number=" + encodeURIComponent(element.phone_number) + 
+                                       "&name=" + encodeURIComponent(element.name) + 
+                                       "&description=" + encodeURIComponent(element.description) + 
+                                       "&status=" + encodeURIComponent(element.status);
+            });
+        });
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+    
+    </script>
+</body>
+
+</html>
