@@ -61,24 +61,26 @@
             }
       
             function fetchAppointments(year, month, date, bottomDiv) {
-                fetch(`/api/appointments?year=${year}&month=${month}&date=${date}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.appointments && data.appointments.length > 0) {
-                            data.appointments.forEach(appointment => {
-                                const eventDiv = document.createElement("div");
-                                eventDiv.classList.add("event", "bg-blue-400", "text-white", "rounded", "p-1", "text-sm", "mb-1");
-                                eventDiv.innerHTML = `
-                                    <span class="event-name">${appointment.name}</span>
-                                    <span class="time">${appointment.time}</span>
-                                `;
-                                bottomDiv.appendChild(eventDiv);
-                            });
-                        }
-                    })
-                    .catch(error => console.error('Error fetching appointments:', error));
+    fetch(`/schedules?year=${year}&month=${month}&date=${date}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.appointments && data.appointments.length > 0) {
+                data.appointments.forEach(appointment => {
+                    const eventDiv = document.createElement("div");
+                    eventDiv.classList.add("event", "bg-blue-400", "text-white", "rounded", "p-1", "text-sm", "mb-1");
+                    eventDiv.innerHTML = `
+                        <span class="event-name">${appointment.description}</span>
+                        <span class="time">${appointment.time}</span>
+                        <span class="email">${appointment.email ? appointment.email : ''}</span>
+                    `;
+                    bottomDiv.appendChild(eventDiv);
+                });
             }
-      
+        })
+        .catch(error => console.error('Error fetching appointments:', error));
+}
+
+           
             prevButton.addEventListener("click", function () {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 renderCalendar();
@@ -199,5 +201,8 @@
         </div>
     </div>
 </div>
+
+<script src="/static/javascript/tailwind-config.js"></script>
+<script src="/static/javascript/alpine.js"></script>
 </body>
 </html>

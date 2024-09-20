@@ -11,16 +11,16 @@ import (
 	"strconv"
 	"time"
 
-	"tashfash.com/main/controllers"
-
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
+	"tashfash.com/main/auth"
 )
 
 // Schedule represents a single schedule entry
 type Schedule struct {
 	Time        string `json:"time"`
+	Date        string `json:"date"`
 	Description string `json:"description"`
 	ScheduledBy string `json:"scheduledBy"`
 	Email       string `json:"email"`
@@ -63,6 +63,17 @@ type Image struct {
 	CollectionID int    `json:"collection_id"`
 }
 
+type Collection struct {
+	ID             int    `json:"id"`
+	CollectionName string `json:"collection_name"`
+}
+
+type CollectionImages struct {
+	ID             int     `json:"id"`
+	CollectionName string  `json:"collection_name"`
+	Images         []Image `json:"images"`
+}
+
 type StatusCount struct {
 	Pending      int           `json:"pending"`
 	Accepted     int           `json:"approved"`
@@ -74,38 +85,10 @@ type StatusCount struct {
 // Global variable for the DB connection
 var db *sql.DB
 
-// JWT secret
-var hmacSampleSecret = controllers.GetSecretKey()
-
-func generateToken(username string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": username,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(),
-	})
-	tokenString, err := token.SignedString(hmacSampleSecret)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
-}
-
-func verifyToken(tokenString string) (string, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return hmacSampleSecret, nil
-	})
-	if err != nil {
-		return "", err
-	}
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims["email"].(string), nil
-	}
-	return "", err
-}
-
 func main() {
+
+	// Each operation requires a context.Context as the first argument.
+
 	// Database connection details
 	host := "localhost"
 	port := 5500
@@ -123,6 +106,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to open a DB connection: %v", err)
 	}
+
 	defer db.Close()
 
 	// Ping the database to ensure the connection is valid
@@ -146,6 +130,7 @@ func main() {
 		"./frontend/pages/upload.html",
 		"./frontend/pages/collections.html",
 		"./frontend/pages/admin/admin-index.html",
+		"./frontend/pages/contact.html",
 		"./frontend/pages/admin/dashboard/login.html",
 		"./frontend/pages/admin/dashboard/dashboard.html",
 		"./frontend/pages/admin/dashboard/view_application.html",
@@ -155,6 +140,49 @@ func main() {
 	)
 
 	// GET Requests
+	// Protected route
+	protected := r.Group("/admin")
+
+	protected.Use(auth.AuthMiddleware()) // Use JWT Auth Middleware here
+	{
+		protected.GET("/dashboard", LoggingMiddleware(), func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "dashboard.html", gin.H{"title": "Admin Dashboard"})
+		})
+
+		r.GET("/schedule", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "schedules.html", gin.H{"title": "TashFash"})
+		})
+
+		r.GET("/picture_collection", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "picture_collection.html", gin.H{"title": "TashFash"})
+		})
+		r.GET("/view_application", func(ctx *gin.Context) {
+
+			// Extract query parameters
+			id := ctx.Query("id")
+			email := ctx.Query("email")
+			date := ctx.Query("date")
+			phoneNumber := ctx.Query("phone_number")
+			name := ctx.Query("name")
+			description := ctx.Query("description")
+			status := ctx.Query("status")
+
+			// Render the template and pass the data
+			ctx.HTML(http.StatusOK, "view_application.html", gin.H{
+				"ID":          id,
+				"Email":       email,
+				"Date":        date,
+				"PhoneNumber": phoneNumber,
+				"Name":        name,
+				"Description": description,
+				"Status":      status,
+			})
+
+		})
+
+		r.GET("/schedules", checkSchedule)
+
+	}
 
 	r.GET("/", LoggingMiddleware(), func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{"title": "TashFash"})
@@ -162,42 +190,12 @@ func main() {
 	r.GET("/apply", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "apply.html", gin.H{"title": "TashFash"})
 	})
-	r.GET("/schedule", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "schedules.html", gin.H{"title": "TashFash"})
-	})
-	r.GET("/dashboard", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "dashboard.html", gin.H{"title": "TashFash"})
-	})
-	r.GET("/view_application", func(ctx *gin.Context) {
 
-		// Extract query parameters
-		id := ctx.Query("id")
-		email := ctx.Query("email")
-		date := ctx.Query("date")
-		phoneNumber := ctx.Query("phone_number")
-		name := ctx.Query("name")
-		description := ctx.Query("description")
-		status := ctx.Query("status")
-
-		// Render the template and pass the data
-		ctx.HTML(http.StatusOK, "view_application.html", gin.H{
-			"ID":          id,
-			"Email":       email,
-			"Date":        date,
-			"PhoneNumber": phoneNumber,
-			"Name":        name,
-			"Description": description,
-			"Status":      status,
-		})
-
-	})
 	r.GET("/dashboardData", handleGetDashboardData)
 	r.GET("/collections", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "collections.html", gin.H{"title": "TashFash"})
 	})
-	r.GET("/picture_collection", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "picture_collection.html", gin.H{"title": "TashFash"})
-	})
+
 	r.GET("/login", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "login.html", gin.H{"title": "TashFash"})
 	})
@@ -211,6 +209,7 @@ func main() {
 	})
 	r.GET("/folder", folderHandler)
 	r.GET("/step2", step2Handler)
+	r.GET("/get_collections", getCollections)
 
 	// POST Requests
 	r.POST("/submit-appointment", submitAppointment)
@@ -218,6 +217,7 @@ func main() {
 	r.POST("/get_photos", getPhotos)
 	r.POST("/finalize", handleFinalize)
 	r.POST("/login", handleLogin)
+	r.POST("/register", handleRegister)
 	r.POST("/verify", handleVerify)
 	r.POST("/apply-now", func(ctx *gin.Context) {
 		ctx.Request.ParseForm()
@@ -264,6 +264,9 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"message": "Promotion uploaded successfully", "price": price, "description": description})
 	})
 
+	r.POST("/get_dropdownValues", getDropdownValues)
+	// Route to accept the application
+	r.POST("/accept_application", acceptApplication)
 	// Start the server
 	r.Run(":4000")
 }
@@ -302,35 +305,6 @@ func getPromotions(c *gin.Context) {
 
 	}
 	c.JSON(http.StatusOK, gin.H{"data": promoton})
-
-}
-
-func handleLogin(c *gin.Context) {
-
-	email := c.PostForm("email")
-	password := c.PostForm("password")
-	fmt.Println(email, password)
-	result, err := db.Query(`SELECT * FROM "USER" where email = $1 and password = $2`, email, password)
-	if err != nil {
-
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query users"})
-		return
-	}
-
-	defer result.Close()
-	if result.Next() {
-
-		token, err := generateToken(c.PostForm("email"))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"token": token})
-		c.SetCookie("token", token, 3600, "/", "", false, true)
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-	}
 
 }
 
@@ -632,12 +606,13 @@ func getFolders(c *gin.Context) {
 func createFolder(c *gin.Context) {
 
 	folder_name := c.PostForm("collection_name")
-	fmt.Println(folder_name)
+	collection_id := c.PostForm("id")
 
-	_, err := db.Exec(`INSERT INTO "Folders" (folder_name, collection_id) VALUES ($1 , $2)`, folder_name, 2)
+	_, err := db.Exec(`INSERT INTO "Folders" (folder_name, collection_id) VALUES ($1 , $2)`, folder_name, collection_id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "failed to create folder",
+			"message":     "failed to create folder",
+			"db_response": err,
 		})
 		return
 	}
@@ -828,4 +803,267 @@ func handleGetDashboardData(c *gin.Context) {
 	// Return the result as JSON
 	c.JSON(http.StatusOK, statusCount)
 
+}
+
+func checkSchedule(c *gin.Context) {
+	yearStr := c.Query("year")
+	monthStr := c.Query("month")
+	dayStr := c.Query("date")
+
+	// Parse year, month, and day into integers
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year"})
+		return
+	}
+
+	month, err := strconv.Atoi(monthStr)
+	if err != nil || month < 1 || month > 12 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid month"})
+		return
+	}
+
+	day, err := strconv.Atoi(dayStr)
+	if err != nil || day < 1 || day > 31 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid day"})
+		return
+	}
+
+	// Create time.Time object
+	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+
+	// Query the database with the date
+	rows, err := db.Query(`SELECT * FROM schedules WHERE date = $1`, date)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query schedules"})
+		return
+	}
+
+	defer rows.Close()
+
+	var schedules []Application
+	for rows.Next() {
+		var schedule Application
+		if err := rows.Scan(&schedule.ID, &schedule.Date, &schedule.Description, &schedule.Name, &schedule.Email, &schedule.Status); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan schedules"})
+			return
+		}
+		schedules = append(schedules, schedule)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"appointments": schedules})
+}
+
+func getDropdownValues(c *gin.Context) {
+	type Collection struct {
+		ID              int    `json:"id"`
+		Collection_name string `json:"collection_name"`
+	}
+
+	// Query for the number of pending requests
+	rows, err := db.Query(`SELECT *  FROM "Collection"`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	var collections []Collection
+
+	for rows.Next() {
+		var collection Collection
+		if err := rows.Scan(&collection.ID, &collection.Collection_name); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan collections"})
+			return
+		}
+		collections = append(collections, collection)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"collections": collections})
+}
+
+func acceptApplication(c *gin.Context) {
+
+	id := c.PostForm("id")
+	//Getting json data
+
+	fmt.Println(id)
+
+	// Update the application status in the database
+
+	result, err := db.Exec(`UPDATE applications SET status = 'accepted' WHERE id = $1`, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Check if any rows were actually updated
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Application not found or no update made"})
+		return
+	}
+
+	// Send a success response
+	c.JSON(http.StatusOK, gin.H{"message": "Application accepted successfully"})
+
+}
+
+func getCollections(c *gin.Context) {
+
+	// Use a JOIN to fetch collections along with their images in one query
+	query := `
+        SELECT 
+            c.id, c.collection_name, 
+            i.id as image_id, i.image_link, i.collection_id 
+        FROM "Collection" c
+        LEFT JOIN images i ON c.id = i.collection_id
+    `
+	rows, err := db.Query(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to fetch collections"})
+		return
+	}
+	defer rows.Close()
+
+	// Create a map to store collections with their images
+	collectionMap := make(map[int]*CollectionImages)
+
+	for rows.Next() {
+		var collectionID int
+		var collectionName string
+		var imageID sql.NullInt64
+		var imageLink sql.NullString
+		var imageCollectionID sql.NullInt64
+
+		// Scan the result of the JOIN query
+		if err := rows.Scan(&collectionID, &collectionName, &imageID, &imageLink, &imageCollectionID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error scanning rows"})
+			return
+		}
+
+		// If the collection is not yet in the map, create a new entry
+		if _, exists := collectionMap[collectionID]; !exists {
+			collectionMap[collectionID] = &CollectionImages{
+				ID:             collectionID,
+				CollectionName: collectionName,
+				Images:         []Image{},
+			}
+		}
+
+		// If the image data is not null, add it to the collection's images
+		if imageID.Valid && imageLink.Valid && imageCollectionID.Valid {
+			collectionMap[collectionID].Images = append(collectionMap[collectionID].Images, Image{
+				ID:           int(imageID.Int64),
+				ImageLink:    imageLink.String,
+				CollectionID: int(imageCollectionID.Int64),
+			})
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error iterating rows"})
+		return
+	}
+
+	// Convert the map to a slice of collections for JSON response
+	var collections []CollectionImages
+	for _, collection := range collectionMap {
+		collections = append(collections, *collection)
+	}
+
+	c.JSON(http.StatusOK, collections)
+}
+
+func AuthenticateUser(username, password string) (int, error) {
+	var userID int
+	var passwordHash string
+
+	// Query the user by username
+	err := db.QueryRow(`SELECT id, password FROM "USER" WHERE email = $1 `, username).Scan(&userID, &passwordHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, fmt.Errorf("invalid credentials")
+		}
+		return 0, err
+	}
+
+	// Compare the hashed password with the input password
+	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)); err != nil {
+		return 0, fmt.Errorf("invalid credentials")
+	}
+
+	return userID, nil
+}
+
+func handleLogin(c *gin.Context) {
+	var credentials struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+
+	fmt.Println(credentials)
+	// Bind the request body to the credentials struct
+	if err := c.ShouldBindJSON(&credentials); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Authenticate the user (you'll need to implement AuthenticateUser)
+	userID, err := AuthenticateUser(credentials.Username, credentials.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	// Generate a JWT token for the authenticated user
+	token, err := auth.GenerateToken(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		return
+	}
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+	})
+
+	// Return the token to the client
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func handleRegister(c *gin.Context) {
+	var registrationData struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&registrationData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	err := RegisterUser(registrationData.Username, registrationData.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
+}
+
+func RegisterUser(username, password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`INSERT INTO "USER" (email, password) VALUES ($1, $2)`, username, hashedPassword)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

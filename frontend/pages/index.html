@@ -289,8 +289,8 @@
               <span class=" text-3xl">🚀</span>
             </div>
           </div>
-          <h3 class="text-xl font-semibold  mb-2"> 3D Design </h3>
-          <p class="text-gray-800 mb-4">Crafting seamless user experiences with elegant and intuitive design.</p>
+          <h3 class="text-xl font-semibold  mb-2"> Interior Design </h3>
+          <p class="text-gray-800 mb-4">We help in Designing your interiors for special occasions.</p>
           <a href="#" class="inline-block text-white bg-gray-700 hover:bg-gray-600 rounded-full px-6 py-2">View more</a>
         </div>
 
@@ -324,8 +324,8 @@
         <h5 class="text-xl font-semibold mb-4">Contact Us</h5>
         <div class="space-y-4">
           <div class="flex items-center space-x-3">
-            <img src="/static/images/location.png" alt="Location" class="w-6 h-6">
-            <a href="#" class="text-gray-400 hover:text-white">Location</a>
+            <img src="/static/images/WhatsApp.png" alt="Location" class="w-6 h-6">
+            <a href="https://wa.me/+260957657513" class="text-gray-400 hover:text-white">Location</a>
           </div>
           <div class="flex items-center space-x-3">
             <img src="/static/images/call.png" alt="Call" class="w-6 h-6">
@@ -336,6 +336,7 @@
             <a href="mailto:tashfashdesigns@gmail.com"
               class="text-gray-400 hover:text-white">tashfashdesigns@gmail.com</a>
           </div>
+
         </div>
       </div>
 
@@ -352,9 +353,7 @@
           <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
             <img src="/static/images/instagram.png" alt="Instagram" class="w-6 h-6">
           </a>
-          <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
-            <img src="/static/images/linkedin.png" alt="LinkedIn" class="w-6 h-6">
-          </a>
+         
         </div>
       </div>
 
@@ -393,55 +392,55 @@
     });
 
     async function getPromotion() {
+  console.log("Displaying promotion");
 
-      console.log("Displaying promotion")
+  var dataSend;
 
-      var dataSend
-
-      try {
-        result = await fetch("/get-promotions", {
-          method: "GET",
-        }).then((res) => data = res.json()
-
-        ).then((data) => dataSend = {
+  try {
+    result = await fetch("/get-promotions", {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        dataSend = {
           ID: data.data.id,
           image: data.data.image_url,
           price: data.data.price,
           description: data.data.description
-        })
-          .catch((err) => console.log(err))
+        };
+      })
+      .catch((err) => console.log(err));
+  } catch (err) {
+    console.log(err);
+  }
 
-      } catch (err) {
-        console.log(err)
-      }
+  console.log(dataSend.id);
+  console.log(dataSend.image);
+  console.log(dataSend.description);
 
+  var promo = document.getElementById("promotions");
+  promo.classList = "bg-white relative flex flex-col items-center w-full py-20"; // Adjusted for responsiveness
 
-      console.log(dataSend.id)
-      console.log(dataSend.image)
-      console.log(dataSend.description)
-
-      var promo = document.getElementById("promotions");
-      promo.classList = "bg-white relative flex w-full h-1/2 justify-center"
-      promo.innerHTML = `
-      
-      <div>
-        <h2 class="text-black pt-20 pb-20 text-2xl md:text-4xl lg:text-6xl font-bold">Check out Our Latest Promotion</h2>
-      
-         <div class=" relative inline-block"> 
-          <img src="${dataSend.image}" alt="Promotion" class="w-full h-auto" loading="lazy" width="400" height="500">
-    >
-      <p class="absolute text-3xl font-bold">${dataSend.price}</p>
-      <p class="absolute top-24 right-3 text-3xl font-bold">${dataSend.description}</p>
+  promo.innerHTML = `
+    <div class="text-center w-full">
+      <h2 class="text-black text-2xl md:text-4xl lg:text-6xl font-bold mb-8">
+        Check out Our Latest Promotion
+      </h2>
+      <div class="relative inline-block">
+        <img src="${dataSend.image}" alt="Promotion" class="w-full max-w-[400px] h-auto object-cover rounded-lg shadow-lg mx-auto" loading="lazy">
+        <p class="absolute bottom-2 left-2 bg-white bg-opacity-75 p-2 text-xl md:text-2xl font-bold text-black">
+          ${dataSend.price}
+        </p>
+        <p class="absolute top-24 right-2 bg-white bg-opacity-75 p-2 text-xl md:text-2xl font-bold text-black">
+          ${dataSend.description}
+        </p>
       </div>
-      </div>`
-      
-     
-      return dataSend;
+    </div>
+  `;
 
+  return dataSend;
+}
 
-
-
-    }
   </script>
 
   <script src="/static/javascript/tailwind-config.js"></script>

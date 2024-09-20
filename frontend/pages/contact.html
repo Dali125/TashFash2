@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Contact Us</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-black text-white md:hidden">
+        <div class="flex justify-between items-center p-4">
+          <a href="/" class="text-3xl font-bold">TASHFASH</a>
+          <button type="button" onclick="openNav()" class="lg:hidden focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+          </button>
+        </div>
+        <nav id="menu"
+          class="hidden lg:flex flex-col lg:flex-row lg:items-center lg:space-x-8 bg-black lg:bg-transparent text-white">
+          <a href="/" class="block px-4 py-2 lg:py-0">Home</a>
+          <a href="/about" class="block px-4 py-2 lg:py-0">About Us</a>
+          <a href="/apply" class="block px-4 py-2 lg:py-0">Schedule Appointment</a>
+          
+          <a href="/contact" class="block px-4 py-2 lg:py-0">Contact Us</a>
+        </nav>
+      </header>
+      <!-- header section strats -->
+      <header class="hidden md:flex w-full">
+        <nav class="flex w-full justify-between items-center bg-black text-white h-20 px-4">
+          <a href="/" class="text-3xl font-bold">
+            TASHFASH
+          </a>
+          <ul class="flex flex-row gap-10">
+            <li>
+              <a class="text-white hover:text-gray-300" href="/">Home</a>
+            </li>
+            <li>
+              <a class="text-white hover:text-gray-300" href="about.html">About Us</a>
+            </li>
+            <li>
+              <a class="text-white hover:text-gray-300" href="/apply">Shedule Appointment</a>
+            </li>
+  
+            <li>
+              <a class="text-white hover:text-gray-300" href="/contact">Contact Us</a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+  
+      <!-- end header section -->
+      <!-- slider section -->
+
+    <!-- Contact Section -->
+    <section class="bg-white py-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-8">Contact Us</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Contact Form -->
+                <div>
+                    <form action="#" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+                                Full Name
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="Your full name" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                                Email Address
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="Your email address" required>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="message">
+                                Message
+                            </label>
+                            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="message" rows="5" placeholder="Your message" required></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Contact Details -->
+                <div class="flex flex-col justify-center">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Get in Touch</h3>
+                    <p class="text-gray-600 mb-4">Feel free to reach out to us for any queries or support. We're here to help you!</p>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-bold text-gray-800">Email</h4>
+                        <p class="text-gray-600">support@tashfaash.com</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-bold text-gray-800">Phone</h4>
+                        <p class="text-gray-600">+2608376863</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="text-lg font-bold text-gray-800">Address</h4>
+                        <p class="text-gray-600">123 Eagle Street, Lusaka, Zambia</p>
+                    </div>
+
+                    <h4 class="text-lg font-bold text-gray-800">Follow Us</h4>
+                    <div class="flex space-x-4 mt-2">
+                        <a href="#" class="text-blue-500 hover:text-blue-700">Twitter</a>
+                        <a href="#" class="text-blue-500 hover:text-blue-700">Facebook</a>
+                        <a href="#" class="text-blue-500 hover:text-blue-700">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+         function openNav(){
+      
+      const menu = document.getElementById("menu");
+  menu.classList.toggle("hidden");
+
+    }
+    </script>
+</body>
+</html>

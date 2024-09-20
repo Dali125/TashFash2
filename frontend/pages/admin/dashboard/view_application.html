@@ -28,21 +28,36 @@
             </div>
             <div class="space-y-2">
                 <p><strong>Date:</strong> {{.Date}}</p>
-                <p><strong>Status:</strong> <span class="font-semibold">{{.Status}}</span></p>
+                <p><strong>Status:</strong> <span id="status" class="font-semibold">{{.Status}}</span></p>
                 <p><strong>Description:</strong> {{if .Description}}{{.Description}}{{else}}No description provided{{end}}</p>
             </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-between items-center">
-            <button class="bg-green-500 text-white py-2 px-4 rounded-lg shadow hover:bg-green-600 transition ease-in-out duration-200">
+            <button id="accept-btn" class="bg-green-500 text-white py-2 px-4 rounded-lg shadow hover:bg-green-600 transition ease-in-out duration-200">
                 Accept
             </button>
-            <button class="bg-red-500 text-white py-2 px-4 rounded-lg shadow hover:bg-red-600 transition ease-in-out duration-200">
+            <button id="reject-btn" class="bg-red-500 text-white py-2 px-4 rounded-lg shadow hover:bg-red-600 transition ease-in-out duration-200">
                 Reject
             </button>
         </div>
     </div>
+    <script>
+        const acceptBtn = document.getElementById('accept-btn');
+        const rejectBtn = document.getElementById('reject-btn');
+        const statusText = document.getElementById('status');
+        const params = new URLSearchParams(window.location.search);
+        const status = params.get('status');
+
+        if (status === 'accepted') {
+            acceptBtn.classList.add('hidden');
+            rejectBtn.innerText = '';
+            rejectBtn.innerText = 'Cancel Application';
+            statusText.classList.add('text-green-500');
+        }
+      
+    </script>
 
 </body>
 </html>

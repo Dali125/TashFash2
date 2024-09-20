@@ -74,24 +74,9 @@
                     <h3 class="text-lg font-semibold mb-2">Recent Appointments</h3>
 
                     <div id="appointments" class="space-y-4">
-                        <!-- Appointment Card -->
-                        <div class="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row items-start md:items-center">
-                            <div class="ml-4 flex-1">
-                                <p class="text-sm font-medium">Olivia Martin</p>
-                                <p class="text-sm text-gray-500">olivia.martin@email.com</p>
-                                <p class="text-sm text-gray-500 mt-2">Applied for appointment on: <span
-                                        class="font-medium">2024-09-15</span></p>
-                            </div>
-                            <div class="flex space-x-2 mt-2 md:mt-0">
-                                <button class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">View</button>
-                                <button
-                                    class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">Accept</button>
-                                <button
-                                    class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600">Decline</button>
-                            </div>
-                        </div>
-
-                        <!-- Repeat Appointment Card as needed -->
+                        <!-- Appointment Card Will Be Placed Here. Check JS -->
+                        
+                        
                     </div>
                 </div>
             </div>
@@ -118,58 +103,98 @@
         async function fetchDashBoardData() {
     try {
         const response = await fetch('/dashboardData', { method: 'GET' });
-        if (!response.ok) throw new Error("Error Getting Data" + response.status);
+        if (!response.ok) throw new Error("Error Getting Data: " + response.status);
 
         const data = await response.json();
-        document.getElementById('total_revenue').innerText = data.pending;
-        document.getElementById('accepted-appointments').innerText = data.approved;
-        document.getElementById('todays-appointments').innerText = data.today_count;
 
-        let appointJson = data.applications;
+        // Ensure data is valid before updating the DOM
+        if (data) {
+            document.getElementById('total_revenue').innerText = data.pending || 0;
+            document.getElementById('accepted-appointments').innerText = data.approved || 0;
+            document.getElementById('todays-appointments').innerText = data.today_count || 0;
 
-        // Loop through the application data
-        appointJson.forEach(element => {
-            console.log(element.email);
+            const appointJson = data.applications || [];
+            const appointmentsSection = document.getElementById('appointments');
+            appointmentsSection.innerHTML = ''; // Clear the section before adding new cards
 
-            // Create appointment card
-            const card = document.createElement('div');
-            card.classList = 'bg-white rounded-lg shadow p-4 flex flex-col md:flex-row items-start md:items-center';
-            card.innerHTML = `
-                <div class="ml-4 flex-1">
-                    <p class="text-sm font-medium">${element.name}</p>
-                    <p class="text-sm text-gray-500">${element.email}</p>
-                    <p class="text-sm text-gray-500 mt-2">Applied for appointment on: 
-                        <span class="font-medium">${element.date}</span>
-                    </p>
-                </div>
-                <div class="flex space-x-2 mt-2 md:mt-0">
-                    <button class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 view-btn">View</button>
-                    <button class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">Accept</button>
-                    <button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600">Decline</button>
-                </div>
-            `;
+            // Loop through the application data
+            appointJson.forEach(element => {
+                const { name, email, date, status, id, phone_number, description } = element;
 
-            // Append the new card to the appointments section
-            document.getElementById('appointments').appendChild(card);
+                // Skip if required fields are missing
+                if (!name || !email || !date || !status) return;
 
-            // Add event listener to the "View" button within this card
-            card.querySelector('.view-btn').addEventListener('click', () => {
-                window.location.href = "/view_application?id=" + encodeURIComponent(element.id) + 
-                                       "&email=" + encodeURIComponent(element.email) + 
-                                       "&date=" + encodeURIComponent(element.date) + 
-                                       "&phone_number=" + encodeURIComponent(element.phone_number) + 
-                                       "&name=" + encodeURIComponent(element.name) + 
-                                       "&description=" + encodeURIComponent(element.description) + 
-                                       "&status=" + encodeURIComponent(element.status);
+                // Create appointment card
+                const card = document.createElement('div');
+                card.classList = 'bg-white rounded-lg shadow p-4 flex flex-col md:flex-row items-start md:items-center';
+
+                // Card content (common for pending and approved)
+                card.innerHTML = `
+                    <div class="ml-4 flex-1">
+                        <p class="text-sm font-medium">${name}</p>
+                        <p class="text-sm text-gray-500">${email}</p>
+                        <p class="text-sm text-gray-500">Status: <span class="${status === 'accepted' ? 'text-green-500' : 'text-amber-500'}">${status}</span></p>
+                        <p class="text-sm text-gray-500 mt-2">Applied for appointment on: 
+                            <span class="font-medium">${date}</span>
+                        </p>
+                    </div>
+                    <div class="flex space-x-2 mt-2 md:mt-0">
+                        <button class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 view-btn">View</button>
+                        ${status === 'pending' ? `
+                            <button class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 accept-btn">Accept</button>
+                        ` : ''}
+                        ${
+                        status === 'pending' ? `
+                        <button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 decline-btn">Decline</button>
+                        ` : `
+                        <button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 decline-btn">Cancel Appointment</button>
+                        `}
+                    </div>
+                `;
+
+                // Append the new card to the appointments section
+                appointmentsSection.appendChild(card);
+
+                // Add event listener to the "View" button within this card
+                card.querySelector('.view-btn').addEventListener('click', () => {
+                    window.location.href = `/view_application?id=${encodeURIComponent(id)}&email=${encodeURIComponent(email)}&date=${encodeURIComponent(date)}&phone_number=${encodeURIComponent(phone_number)}&name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&status=${encodeURIComponent(status)}`;
+                });
+
+                // Add event listener for "Accept" button (only if status is pending)
+                if (status === 'pending') {
+                    card.querySelector('.accept-btn').addEventListener('click', async () => {
+                        try {
+
+                            const myForm = new FormData();
+                            myForm.append('id', id);
+                            const acceptResponse = await fetch('/accept_application', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: myForm
+                            });
+
+                            if (!acceptResponse.ok) {
+                                alert(`Something went wrong, please try again. Error: ${acceptResponse.status}`);
+                            } else {
+                                window.location.reload();
+                            }
+                        } catch (error) {
+                            console.error('Error accepting appointment:', error);
+                        }
+                    });
+                }
+
+                // Add event listener for "Decline" button
+                card.querySelector('.decline-btn').addEventListener('click', () => {
+                    alert("Declined");
+                });
             });
-        });
-
+        }
     } catch (err) {
-        console.error(err);
+        console.error('Error fetching dashboard data:', err);
     }
 }
 
-    
     </script>
 </body>
 

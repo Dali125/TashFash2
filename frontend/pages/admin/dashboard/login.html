@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <script src="/static/javascript/authentication_bootstrap.js"></script>
 </head>
+
 <body>
 
-    <div class="w-screen h-screen bg-gradient-to-b from-pink-500 via-pink-800 to-purple-700 flex justify-center items-center">
+    <div
+        class="w-screen h-screen bg-gradient-to-b from-pink-500 via-pink-800 to-purple-700 flex justify-center items-center">
 
-        <div class="md:w-1/3 md:h-1/2 h-full w-full md:bg-white/25 rounded-xl md:backdrop-blur-lg shadow-lg rounded-lg flex flex-col p-4 ">
+        <div
+            class="md:w-1/3 md:h-1/2 h-full w-full md:bg-white/25 rounded-xl md:backdrop-blur-lg shadow-lg rounded-lg flex flex-col p-4 ">
             <p class="text-3xl text-white/70 font-bold">Login</p>
 
             <form id="login-form">
                 <div class="mt-4">
                     <label class="block text-white/70 text-sm font-bold mb-2" for="email">Email</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" required>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="email" type="email" required>
                 </div>
                 <div class="mt-4">
                     <label class="block text-white/70 text-sm font-bold mb-2" for="password">Password</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" required>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="password" type="password" required>
                 </div>
                 <div class="mt-10">
-                    <button class="bg-white/70 hover:bg-white/90 text-black w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Login</button>
+                    <button
+                        class="bg-white/70 hover:bg-white/90 text-black w-full font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        type="submit">Login</button>
                 </div>
             </form>
         </div>
@@ -37,15 +48,30 @@
             form.addEventListener('submit', async function (event) {
                 event.preventDefault();
 
-                const formData = new FormData();
-                formData.append('email', email.value);
-                formData.append('password', password.value);
+
+                const loginData = {
+                    "username": email.value,
+                    "password": password.value
+                };
+
+                var jsonData = JSON.stringify(loginData);
 
                 try {
                     const response = await fetch('/login', {
                         method: 'POST',
-                        body: formData
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: jsonData
                     });
+
+                    if (response.ok) {
+                        // Assuming your server sets the JWT in a cookie with the `Set-Cookie` header
+                        window.location.href = '/admin/dashboard';
+                    } else {
+                        alert('Login failed');
+                    }
 
                     if (!response.ok) {
                         console.error("Error logging in:", response.statusText);
@@ -58,19 +84,20 @@
 
                     localStorage.setItem('token', token);
 
-                    const dashboardResponse = await fetch('/dashboard', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
 
-                    if (dashboardResponse.ok) {
-                        window.location.href = '/dashboard';
-                    } else {
-                        console.error('Failed to access the dashboard:', dashboardResponse.statusText);
-                        alert('Failed to access the dashboard. Please try again.');
-                    }
+                    // Usage for fetching protected routes
+                    authenticatedFetch('/admin/dashboard', { method: 'GET' })
+                        .then(response => {
+                            if (response.ok) {
+                                window.location.href = '/admin/dashboard';
+                            } else {
+                                alert('Unauthorized. Please log in again.');
+                                window.location.href = '/login';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching dashboard:', error);
+                        });
 
                 } catch (error) {
                     console.error('Error during login:', error);
@@ -81,6 +108,7 @@
     </script>
 
     <script src="/static/javascript/tailwind-config.js"></script>
-    
+
 </body>
+
 </html>

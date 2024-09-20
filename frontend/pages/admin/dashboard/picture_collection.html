@@ -8,43 +8,88 @@
     <style>
         #overlay {
             position: fixed;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             width: 100%;
             height: 100%;
             top: 0;
             left: 0;
             background-color: rgba(0, 0, 0, 0.5);
-            z-index: 10; /* Ensure it is above other elements */
+            z-index: 10;
+            /* Ensure it is above other elements */
             cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            /* Add padding for smaller screens */
         }
 
+        #text {
+            background-color: white;
+            width: 90%;
+            /* Adjust for mobile screens */
+            max-width: 600px;
+            /* Limit the width on larger screens */
+            height: auto;
+            /* Allow content height to adjust */
+            padding: 2rem;
+            /* Responsive padding */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            #text {
+                width: 50%;
+                /* Increase width on medium screens */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #text {
+                width: 33%;
+                /* For larger screens, use 1/3 width */
+            }
+        }
+
+
         .create-folder {
-            cursor: pointer; /* Changes the cursor to indicate clickable */
-            color: blue; /* Adds color to make it stand out */
-            font-weight: bold; /* Makes the text bold */
+            cursor: pointer;
+            /* Changes the cursor to indicate clickable */
+            color: blue;
+            /* Adds color to make it stand out */
+            font-weight: bold;
+            /* Makes the text bold */
         }
 
         .create-folder:hover {
-            text-decoration: underline; /* Underlines the text on hover */
+            text-decoration: underline;
+            /* Underlines the text on hover */
         }
 
         /* Ensure the top navigation bar is visible */
         .top-bar {
             width: 100%;
-            height: 64px; /* Example height for navigation bar */
-            background-color: white; /* Background color */
+            height: 64px;
+            /* Example height for navigation bar */
+            background-color: white;
+            /* Background color */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 24px; /* Padding for spacing */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for elevation */
+            padding: 0 24px;
+            /* Padding for spacing */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            /* Optional shadow for elevation */
             position: fixed;
             top: 0;
-            z-index: 5; /* Lower than the overlay but above other content */
+            z-index: 5;
+            /* Lower than the overlay but above other content */
         }
 
         .content-container {
-            margin-top: 64px; /* Ensure content is not hidden under the top bar */
+            margin-top: 64px;
+            /* Ensure content is not hidden under the top bar */
         }
     </style>
 </head>
@@ -59,12 +104,15 @@
                 <div onclick="off()">X</div>
 
             </div>
-          
+
             <form id="folder" class="flex flex-col gap-4">
                 <label for="collection_name">Collection Name</label>
                 <input class="border-2 border-black" type="text" name="collection_name" id="collection_name">
                 <label for="folder_path">Collection Category</label>
-                <input class="border-2 border-black" type="text" name="folder_path" id="folder_path">
+
+                <select class="border-2 border-black" id="dropdown">
+
+                </select>
                 <button class="w-full text-white h-12 mt-16 bg-black rounded-md" type="submit">Save Collection</button>
             </form>
         </div>
@@ -81,7 +129,8 @@
                 <a class="w-full h-12 hover:bg-gray-200 pt-2 pl-2 mr-72" href="/dashboard">Dashboard</a>
                 <a class="w-full h-12  hover:bg-gray-200  pt-2 pl-2 mr-72" href="/schedule">Schedule</a>
                 <a class="w-full h-12 hover:bg-gray-200 pt-2 pl-2 mr-72">Notifications</a>
-                <a class="w-full h-12 bg-gray-400 hover:bg-gray-200 pt-2 pl-2 mr-72" href="/picture_collection">Picture Collection</a>
+                <a class="w-full h-12 bg-gray-400 hover:bg-gray-200 pt-2 pl-2 mr-72" href="/picture_collection">Picture
+                    Collection</a>
                 <li>Logout</li>
             </ul>
         </div>
@@ -98,7 +147,8 @@
             <!-- Content Area -->
             <div class="content-container md:ml-72">
                 <div class="dashboard pt-16 w-full h-full pl-10 pr-10">
-                    <div class=" w-full h-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="myFolders"></div>
+                    <div class=" w-full h-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                        id="myFolders"></div>
                 </div>
             </div>
         </div>
