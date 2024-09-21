@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -46,24 +47,26 @@
     .sroll-smooth {
       scroll-behavior: smooth;
     }
+
     .animate-gradient {
       background-size: 500% 500%;
       animation: infinite pulse-gradient 7s ease-in-out;
     }
+
     @keyframes pulse-gradient {
       0% {
         background-position: 0 0;
-      } 
+      }
 
       50% {
         background-position: 100% 0;
       }
+
       100% {
         background-position: 0 0;
       }
-      
+
     }
-  
   </style>
 </head>
 
@@ -83,7 +86,7 @@
         <a href="/" class="block px-4 py-2 lg:py-0">Home</a>
         <a href="/about" class="block px-4 py-2 lg:py-0">About Us</a>
         <a href="/apply" class="block px-4 py-2 lg:py-0">Schedule Appointment</a>
-        
+
         <a href="/contact" class="block px-4 py-2 lg:py-0">Contact Us</a>
       </nav>
     </header>
@@ -121,7 +124,9 @@
 
         <div class=" text-center text-black">
           <h1 class="text-6xl font-bold">WELCOME TO</h1>
-          <h2 class="text-5xl"><span class="animate-gradient text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-pink-800">TASHFASH</span> Designs</h2>
+          <h2 class="text-5xl"><span
+              class="animate-gradient text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-pink-800">TASHFASH</span>
+            Designs</h2>
 
           <a class="h-16 shadow-lg w-72 flex rounded-sm mt-20 pl-6 pr-6 justify-center items-center text-white bg-black hover:bg-white border-2 border-white hover:border-black   inline-flex "
             href="#collections">View Collections</a>
@@ -202,45 +207,17 @@
     </div>
   </section>
 
-  <section id="collections" class="bg-gray-200 py-20">
+  <section id="promotions" class="bg-gray-200 py-20">
     <div class="max-w-screen-xl mx-auto px-6 text-center">
       <p class="text-black text-2xl md:text-4xl lg:text-6xl font-bold mb-12">Check Out Our Latest Promotions</p>
-      <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
-          <img src="/static/images/6.jpeg" alt="Fashion Image 6" class="w-full h-80 object-cover" loading="lazy">
-          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
-            <p class="text-lg font-semibold">Wedding Dress</p>
-            <p class="text-xl font-bold">K20</p>
-          </div>
-        </li>
-        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
-          <img src="/static/images/16.jpeg" alt="Fashion Image 16" class="w-full h-64 object-cover" loading="lazy">
-          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
-            <p class="text-lg font-semibold">Wedding Dress</p>
-            <p class="text-xl font-bold">K20</p>
-          </div>
-        </li>
-        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
-          <img src="/static/images/20.jpeg" alt="Fashion Image 20" class="w-full h-64 object-cover" loading="lazy">
-          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
-            <p class="text-lg font-semibold">Wedding Dress</p>
-            <p class="text-xl font-bold">K20</p>
-          </div>
-        </li>
-        <li class="relative bg-white rounded-lg shadow-lg overflow-hidden">
-          <img src="/static/images/15.jpeg" alt="Fashion Image 15" class="w-full h-64 object-cover" loading="lazy">
-          <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black to-transparent text-white">
-            <p class="text-lg font-semibold">Wedding Dress</p>
-            <p class="text-xl font-bold">K20</p>
-          </div>
-        </li>
-      </ul>
-  
+      <div id="promotionList" class="flex flex-wrap justify-center gap-6 p-4 max-w-screen-xl mx-auto">
+        <!-- Promotions will be dynamically injected here -->
+      </div>
+
       <a class="mt-12 inline-block px-6 py-3 rounded-md text-white bg-black border-2 border-black transition-colors"
         href="/collections">View All</a>
     </div>
   </section>
-  
 
 
 
@@ -353,7 +330,7 @@
           <a href="#" class="bg-gray-700 p-3 rounded-full hover:bg-gray-600">
             <img src="/static/images/instagram.png" alt="Instagram" class="w-6 h-6">
           </a>
-         
+
         </div>
       </div>
 
@@ -375,18 +352,18 @@
 
 
   <script>
-      function openNav(){
-      
-        const menu = document.getElementById("menu");
-    menu.classList.toggle("hidden");
+    function openNav() {
 
-      }
-    document.addEventListener("DOMContentLoaded", function () {
+      const menu = document.getElementById("menu");
+      menu.classList.toggle("hidden");
 
-    
+    }
+    document.addEventListener("DOMContentLoaded", async function () {
+
+
 
       //Display the promotion image on the landing page
-      getPromotion()
+      await getPromotion()
 
 
     });
@@ -394,54 +371,50 @@
     async function getPromotion() {
   console.log("Displaying promotion");
 
-  var dataSend;
+  const promotionsList = document.getElementById("promotionList");
+  promotionsList.innerHTML = ""; // Clear the list before rendering new items
 
   try {
-    result = await fetch("/get-promotions", {
+    const response = await fetch("/get-promotions", {
       method: "GET",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        dataSend = {
-          ID: data.data.id,
-          image: data.data.image_url,
-          price: data.data.price,
-          description: data.data.description
-        };
-      })
-      .catch((err) => console.log(err));
+    });
+    const data = await response.json();
+
+    // Limit to a maximum of 4 promotions
+    const maxPromotions = Math.min(data.data.length, 4);
+
+    // If there is only one promotion, center it and make it bigger.
+    const justifyClass = maxPromotions === 1 ? 'justify-center' : 'justify-start';
+    promotionsList.classList.remove('justify-start', 'justify-center');
+    promotionsList.classList.add(justifyClass);
+
+    data.data.slice(0, maxPromotions).forEach(promotion => {
+      // Create a card for each promotion
+      const promotionCard = document.createElement("div");
+
+      if (maxPromotions === 1) {
+        promotionCard.className = "w-full sm:w-96 bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"; // Larger card for single promotion
+      } else {
+        promotionCard.className = "w-full sm:w-72 bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"; // Normal size
+      }
+
+      promotionCard.innerHTML = `
+        <img src="${promotion.image_url}" alt="${promotion.description}" class="w-full ${maxPromotions === 1 ? 'h-80' : 'h-56'} object-cover"> <!-- Adjust height for single promotion -->
+        <div class="p-4 text-center">
+          <h2 class="font-semibold text-lg mb-2">${promotion.description}</h2>
+          <p class="text-gray-500">$${promotion.price}</p>
+        </div>
+      `;
+
+      promotionsList.appendChild(promotionCard);
+    });
+
   } catch (err) {
     console.log(err);
   }
-
-  console.log(dataSend.id);
-  console.log(dataSend.image);
-  console.log(dataSend.description);
-
-  var promo = document.getElementById("promotions");
-  promo.classList = "bg-white relative flex flex-col items-center w-full py-20"; // Adjusted for responsiveness
-
-  promo.innerHTML = `
-    <div class="text-center w-full">
-      <h2 class="text-black text-2xl md:text-4xl lg:text-6xl font-bold mb-8">
-        Check out Our Latest Promotion
-      </h2>
-      <div class="relative inline-block">
-        <img src="${dataSend.image}" alt="Promotion" class="w-full max-w-[400px] h-auto object-cover rounded-lg shadow-lg mx-auto" loading="lazy">
-        <p class="absolute bottom-2 left-2 bg-white bg-opacity-75 p-2 text-xl md:text-2xl font-bold text-black">
-          ${dataSend.price}
-        </p>
-        <p class="absolute top-24 right-2 bg-white bg-opacity-75 p-2 text-xl md:text-2xl font-bold text-black">
-          ${dataSend.description}
-        </p>
-      </div>
-    </div>
-  `;
-
-  return dataSend;
 }
 
-  </script>
+ </script>
 
   <script src="/static/javascript/tailwind-config.js"></script>
 

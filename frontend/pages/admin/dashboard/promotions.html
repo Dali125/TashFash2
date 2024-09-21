@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ open: false }">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotions</title>
+    <link rel="stylesheet" href="/static/css/schedule.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- Sidebar for navigation -->
+        <div class="fixed h-full w-64 z-10 shadow-md border-r bg-white hidden md:flex flex-col">
+            <div class="h-16 flex justify-center items-center">
+                <h1 class="text-4xl">TashFash Admin</h1>
+            </div>
+            <ul class="flex flex-col pt-6 space-y-2">
+                <a class="pl-4 py-2 bg-gray-400 hover:bg-gray-300" href="/admin/dashboard">Dashboard</a>
+                <a class="pl-4 py-2 hover:bg-gray-200" href="/admin/schedule">Schedule</a>
+                <a class="pl-4 py-2 hover:bg-gray-200">Notifications</a>
+                <a class="pl-4 py-2 hover:bg-gray-200" href="/admin/picture_collection">Picture Collection</a>
+                <li class="pl-4 py-2 cursor-pointer">Logout</li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="md:ml-64 flex-1">
+            <!-- Top Navigation -->
+            <div class="w-full h-16 bg-black flex justify-between items-center px-4 fixed top-0 z-10">
+                <h1 class="text-white text-2xl">Promotions</h1>
+                <button class="text-white md:hidden" @click="open = !open">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Promotions content -->
+            <div id="pcon" class="mt-20 p-4">
+                <!-- Dynamic promotional items container -->
+                <div id="promotions-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Promo cards will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="open" x-transition class="fixed inset-0 bg-white z-50 md:hidden">
+            <ul class="flex flex-col p-6 space-y-2">
+                <a class="py-2 hover:bg-gray-200" href="/dashboard">Dashboard</a>
+                <a class="py-2 hover:bg-gray-200" href="/schedule">Schedule</a>
+                <a class="py-2 hover:bg-gray-200">Notifications</a>
+                <a class="py-2 hover:bg-gray-200" href="/picture_collection">Picture Collection</a>
+                <li class="py-2 cursor-pointer">Logout</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/static/javascript/tailwind-config.js"></script>
+    <script>
+        // Fetch promotions from the server and render them
+        async function fetchPromotions() {
+    try {
+        const response = await fetch('/get-promotions');
+        
+        // Check if the response is ok (status 200-299)
+        if (!response.ok) {
+            throw new Error('Failed to fetch promotions');
+            return;
+        }
+
+        const promotions = await response.json();
+        console.log(promotions);
+
+        const myPromotions = promotions.data;
+
+
+        const headerPrime = document.getElementById('pcon');
+        const container = document.getElementById('promotions-container');
+        // Ensure the response contains data
+        if(promotions.data === null) {
+            headerPrime.classList.add = ("w-screen", "h-screen", "flex", "items-center", "text-center");
+            container.innerHTML = `<div class="bg-white shadow-md rounded-lg overflow-hidden w-full h-full flex flex-col items-center justify-center">
+                <p>No promotions found Please add some</p>
+                <button
+                    class="bg-blue-500 text-white px-4 py-2 mt-4 rounded"
+                    onclick="window.location.href = '/admin/promotions/add'">
+                    Add
+                </button>
+                </div>`;
+         return;   
+        }
+        
+
+        
+        container.innerHTML = '';  // Clear any previous content
+
+        promotions.data.forEach(promo => {
+            const promoCard = `
+                <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                    <img class="w-full h-48 object-cover" src="${promo.image_url}" alt="Promo Image">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">${promo.description}</h3>
+                        <p class="text-gray-500 mt-2">$${promo.price}</p>
+                        <button 
+                            class="bg-blue-500 text-white px-4 py-2 mt-4 rounded" 
+                            onclick="editPromotion(${promo.id})">
+                            Edit
+                        </button>
+                          <button 
+                            class="bg-red-500 text-white px-4 py-2 mt-4 rounded" 
+                            onclick="daletePromotion(${promo.id})">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += promoCard;
+        });
+
+    } catch (error) {
+        alert('Error fetching promotions. Please try to refresh the page.');
+        console.error('Error fetching promotions:', error);
+    }
+}
+
+        // Call the function to fetch promotions when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPromotions();
+        });
+
+        // Function to edit promotion (redirect to an edit page or open modal)
+        function editPromotion(id) {
+            window.location.href = `/admin/promotions/edit?id=${id}`;
+        }
+        function addPromotion() {
+            window.location.href = '/admin/promotions/add';
+        }
+
+        async function deletePromotion(id) {
+
+            try {
+                const response = await fetch(`/delete-promotion?id=${id}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to delete promotion');
+                }
+
+                alert('Promotion deleted successfully!');
+                window.location.reload();
+            } catch (error) {
+                alert('Error deleting promotion. Please try again.');
+                console.error('Error deleting promotion:', error);
+            }
+
+        }
+    </script>
+</body>
+
+</html>

@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Promotion</title>
+    <title>Add Promotion</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
+    <div class="fixed top-0 left-0 w-full h-20 flex items-center justify-center bg-black text-white"> <a href="/admin/dashboard">Back</a></div>
 
-    <div class="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8">
-        <h1 class="text-2xl font-bold mb-6">Edit Promotion</h1>
+    <div class="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8 mt-24">
+        <h1 class="text-2xl font-bold mb-6">Add Promotion</h1>
 
-        <form id="edit-promotion-form" class="space-y-6">
+        <form id="add-promotion-form" class="space-y-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Promotion Image</label>
                 <input type="file" id="image" class="mt-1 block w-full" accept="image/*">
@@ -28,58 +29,24 @@
                 <input type="number" id="price" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter new price">
             </div>
 
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Update Promotion</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Promotion</button>
         </form>
     </div>
 
     <script>
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const id = getQueryParam('id');
-            if (id) {
-                fetchPromotionById(id);
-            }
-        })
         // Function to get query parameters
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
+       
         // Fetch the promotion data based on ID
-        async function fetchPromotionById(id) {
-            try {
-                const response = await fetch(`/get-promotion?id=${id}`);
-                const promotion = await response.json();
-                console.log(promotion)
-
-                if (!promotion) {
-                    throw new Error('Promotion not found');
-                }
-
-                // Populate the form with current data
-                document.getElementById('current-image').src = promotion.image_url;
-                document.getElementById('description').value = promotion.description;
-                document.getElementById('price').value = promotion.price;
-
-            } catch (error) {
-                alert('Error fetching promotion. Please try again.');
-                console.error('Error:', error);
-            }
-        }
-
         // Handle form submission for editing the promotion
-        document.getElementById('edit-promotion-form').addEventListener('submit', async (event) => {
+        document.getElementById('add-promotion-form').addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const id = getQueryParam('id');
             const imageInput = document.getElementById('image');
             const description = document.getElementById('description').value;
             const price = document.getElementById('price').value;
 
             // Create FormData object to handle file uploads
             const formData = new FormData();
-            formData.append('id', id);
             formData.append('description', description);
             formData.append('price', price);
 
@@ -89,7 +56,7 @@
             }
 
             try {
-                const response = await fetch(`/update-promotion`, {
+                const response = await fetch(`/add-promotion`, {
                     method: 'POST',
                     body: formData
                 });
@@ -106,7 +73,13 @@
             }
         });
 
-      
+        // Get the promotion ID from the query parameter and fetch the promotion data
+        const promotionId = getQueryParam('id');
+        if (promotionId) {
+            fetchPromotionById(promotionId);
+        } else {
+            alert('No promotion ID provided in URL');
+        }
     </script>
 
 </body>
