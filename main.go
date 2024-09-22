@@ -441,10 +441,11 @@ func getSchedules(date time.Time) ([]Schedule, error) {
 }
 
 func generateSchedules(c *gin.Context) {
-	query := "SELECT id, to_char(date, 'YYYY-MM-DD') as date, description, scheduled_by, name, email, phone_number FROM schedules ORDER BY date DESC"
+	query := "SELECT id, to_char(date, 'YYYY-MM-DD') as date, description,  name, email, phone_number FROM applications WHERE status = 'accepted' ORDER BY date DESC"
 
 	rows, err := db.Query(query)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Error querying database: " + err.Error(),
 		})
@@ -452,21 +453,25 @@ func generateSchedules(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	var schedules []Schedule
+	var schedules []Application
 	for rows.Next() {
-		var schedule Schedule
+		var schedule Application
 		// Scan all fields into the schedule struct
 		if err := rows.Scan(&schedule.ID, &schedule.Date, &schedule.Description,
-			&schedule.ScheduledBy, &schedule.Name, &schedule.Email, &schedule.PhoneNumber); err != nil {
+			&schedule.Name, &schedule.Email, &schedule.Phone); err != nil {
+			fmt.Println(err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
+
 				"error": "Error scanning data: " + err.Error(),
 			})
 			return
 		}
 		schedules = append(schedules, schedule)
 	}
+	fmt.Println(schedules)
 
 	if err = rows.Err(); err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Row iteration error: " + err.Error(),
 		})
@@ -795,7 +800,7 @@ func submitAppointment(c *gin.Context) {
 
 	fmt.Println(email, phone, description, first_name, lastname)
 
-	_, err := db.Exec(`INSERT INTO applications (date, email, phone_number, name , status) VALUES ($1 , $2, $3, $4, $5)`, date, email, phone, full_name, "pending")
+	_, err := db.Exec(`INSERT INTO applications (date, email, phone_number, name , status, description) VALUES ($1 , $2, $3, $4, $5, $6)`, date, email, phone, full_name, "pending", description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert application into database"})
 		return
@@ -837,7 +842,7 @@ func handleGetDashboardData(c *gin.Context) {
 
 	var applications []Application
 
-	rows, err := db.Query("SELECT id, date, email, phone_number, name, status FROM applications")
+	rows, err := db.Query("SELECT id, to_char(date, 'YYYY-MM-DD') as date, email, phone_number, name, status FROM applications ORDER BY date DESC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query applications"})
 		return
