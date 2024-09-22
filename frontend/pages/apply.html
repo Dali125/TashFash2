@@ -83,7 +83,7 @@
                     .then(response => response.json())
                     .then(data => {
                         let scheduleList = document.getElementById('message');
-                        if (data.hasSchedules) {
+                        if (data.length > 5) {
                             scheduleList.classList.remove('text-green-500');
                             scheduleList.classList.add('text-red-500');
                             scheduleList.innerHTML = 'This day has appointments. Please choose another date.';

@@ -1,97 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="{ open: false }">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedules - TashFash Dash</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
-<body class="bg-gray-100">
-    <!-- Main Content Area -->
-    <div class="container mx-auto mt-10">
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h1 class="text-2xl font-bold mb-4 text-gray-800">Schedule Overview</h1>
-            <div id="schedules-container" class="space-y-4">
-                <!-- Schedule Items will be dynamically injected here -->
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Desktop Sidebar -->
+    <div class="fixed h-full w-64 z-10 shadow-md border-r bg-white hidden md:flex flex-col">
+        <div class="h-16 flex justify-center items-center">
+            <h1 class="text-4xl">TashFash Admin</h1>
+        </div>
+        <ul class="flex flex-col pt-6 space-y-2">
+            <a class="pl-4 py-2 hover:bg-gray-300" href="/admin/dashboard">Dashboard</a>
+            <a class="pl-4 py-2 bg-gray-400 hover:bg-gray-200" href="/admin/schedule">Schedule</a>
+
+            <a class="pl-4 py-2 hover:bg-gray-200" href="/admin/promotions">Promotions</a>
+            <a class="pl-4 py-2 hover:bg-gray-200" href="/admin/picture_collection">Picture Collection</a>
+            <li class="pl-4 py-2 cursor-pointer">Logout</li>
+        </ul>
+    </div>
+
+    <div class="md:ml-64 flex-1">
+        <!-- Top Navigation -->
+        <div class="w-full h-16 bg-black flex justify-between items-center px-4 fixed top-0 z-10">
+            <h1 class="text-white text-2xl">Schedules</h1>
+            <button class="text-white md:hidden" @click="open = !open">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="container mx-auto mt-20 p-4">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h1 class="text-2xl font-bold mb-4 text-gray-800">Schedule Overview</h1>
+                <div id="schedules-container" class="space-y-4">
+                    <!-- Schedule Items will be dynamically injected here -->
+                </div>
             </div>
         </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="open" x-transition class="fixed inset-0 bg-white z-50 md:hidden">
+            <div class="flex justify-between p-4">
+                <h2 class="text-lg font-semibold">Menu</h2>
+                <button class="text-black" @click="open = false">
+                    <!-- Close Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <ul class="flex flex-col p-6 space-y-2">
+                <a class="py-2 hover:bg-gray-200" href="/admin/dashboard">Dashboard</a>
+                <a class="py-2 hover:bg-gray-200" href="/admin/schedule">Schedule</a>
+
+                <a class="py-2 hover:bg-gray-200" href="/admin/picture_collection">Picture Collection</a>
+                <li class="py-2 cursor-pointer">Logout</li>
+            </ul>
+        </div>
+    </div>
     </div>
 
     <script>
-        // Function to fetch appointments from the server
+        // Function to fetch schedules from the server
         async function fetchAppointments() {
-
             try {
+                const response = await fetch('/generate-schedules');
+                const data = await response.json();
 
-                const response = await fetch('/generate-schedules')
-                const data = await response.json()
+                const scheduleContainer = document.querySelector('#schedules-container');
+                scheduleContainer.innerHTML = ''; // Clear previous content
 
-             
-                    const scheduleContainer = document.querySelector('#schedules-container');
-             scheduleContainer.innerHTML = ''; // Clear previous content
+                data.schedules.forEach(schedule => {
+                    const scheduleItem = document.createElement('div');
+                    scheduleItem.classList.add('p-4', 'bg-gray-50', 'rounded-lg', 'shadow', 'mb-4');
 
-                console.log(data)
-                 // Loop through each schedule and create an HTML element for it
-                    data.schedules.forEach(schedule => {
-                        const scheduleItem = document.createElement('div');
-                        scheduleItem.classList.add('p-4', 'bg-gray-50', 'rounded-lg', 'shadow', 'mb-4');
+                    scheduleItem.innerHTML = `
+                        <p><strong>Date:</strong> ${schedule.date}</p>
+                        <p><strong>Description:</strong> ${schedule.description}</p>
+                        <p><strong>Scheduled By:</strong> ${schedule.scheduledBy}</p>
+                        <p><strong>Name:</strong> ${schedule.name}</p>
+                        <p><strong>Email:</strong> ${schedule.email}</p>
+                        <p><strong>Phone:</strong> ${schedule.phoneNumber}</p>
+                    `;
 
-                        scheduleItem.innerHTML = `
-                            <p><strong>Date:</strong> ${schedule.date}</p>
-                            <p><strong>Time:</strong> ${schedule.time}</p>
-                            <p><strong>Description:</strong> ${schedule.description}</p>
-                            <p><strong>Scheduled By:</strong> ${schedule.scheduledBy}</p>
-                            <p><strong>Name:</strong> ${schedule.name}</p>
-                            <p><strong>Email:</strong> ${schedule.email}</p>
-                            <p><strong>Phone:</strong> ${schedule.phoneNumber}</p>
-                        `;
-
-                        scheduleContainer.appendChild(scheduleItem);
-                    });
+                    scheduleContainer.appendChild(scheduleItem);
+                });
                 
-
-
-             
                 if (!response.ok) {
-
-                    alert("Error occured")
+                    alert("Error occurred");
                 }
-                
             } catch (error) {
-                
                 console.error('Error fetching schedules:', error);
             }
-            // fetch('/generate-schedules')
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         // Select the container where schedule items will be injected
-            //         const scheduleContainer = document.querySelector('#schedules-container');
-            //         scheduleContainer.innerHTML = ''; // Clear previous content
-
-            //         // Loop through each schedule and create an HTML element for it
-            //         data.forEach(schedule => {
-            //             const scheduleItem = document.createElement('div');
-            //             scheduleItem.classList.add('p-4', 'bg-gray-50', 'rounded-lg', 'shadow', 'mb-4');
-
-            //             scheduleItem.innerHTML = `
-            //                 <p><strong>Date:</strong> ${schedule.date}</p>
-            //                 <p><strong>Time:</strong> ${schedule.time}</p>
-            //                 <p><strong>Description:</strong> ${schedule.description}</p>
-            //                 <p><strong>Scheduled By:</strong> ${schedule.scheduledBy}</p>
-            //                 <p><strong>Name:</strong> ${schedule.name}</p>
-            //                 <p><strong>Email:</strong> ${schedule.email}</p>
-            //                 <p><strong>Phone:</strong> ${schedule.phoneNumber}</p>
-            //             `;
-
-            //             scheduleContainer.appendChild(scheduleItem);
-            //         });
-            //     })
-            //     .catch(error => console.error('Error fetching schedules:', error));
         }
 
-        // Fetch and display appointments when the page loads
+        // Fetch and display schedules when the page loads
         window.onload = fetchAppointments;
     </script>
 </body>

@@ -441,7 +441,7 @@ func getSchedules(date time.Time) ([]Schedule, error) {
 }
 
 func generateSchedules(c *gin.Context) {
-	query := "SELECT id, to_char(date, 'YYYY-MM-DD') as date, time, description, scheduled_by, name, email, phone_number FROM schedules ORDER BY date DESC"
+	query := "SELECT id, to_char(date, 'YYYY-MM-DD') as date, description, scheduled_by, name, email, phone_number FROM schedules ORDER BY date DESC"
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -456,7 +456,7 @@ func generateSchedules(c *gin.Context) {
 	for rows.Next() {
 		var schedule Schedule
 		// Scan all fields into the schedule struct
-		if err := rows.Scan(&schedule.ID, &schedule.Date, &schedule.Time, &schedule.Description,
+		if err := rows.Scan(&schedule.ID, &schedule.Date, &schedule.Description,
 			&schedule.ScheduledBy, &schedule.Name, &schedule.Email, &schedule.PhoneNumber); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Error scanning data: " + err.Error(),
@@ -828,7 +828,7 @@ func handleGetDashboardData(c *gin.Context) {
 
 	// Query for the number of today's appointments
 	var todayCount int
-	err = db.QueryRow("SELECT COUNT(*) FROM applications WHERE date = $1", currentDate).Scan(&todayCount)
+	err = db.QueryRow("SELECT COUNT(*) FROM schedules WHERE date = $1", currentDate).Scan(&todayCount)
 	if err != nil {
 		log.Printf("Error fetching today's appointments: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch today's appointments"})
