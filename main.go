@@ -19,10 +19,12 @@ import (
 
 // Schedule represents a single schedule entry
 type Schedule struct {
+	ID          int    `json:"id"`
 	Time        string `json:"time"`
 	Date        string `json:"date"`
 	Description string `json:"description"`
 	ScheduledBy string `json:"scheduledBy"`
+	Name        string `json:"name"`
 	Email       string `json:"email"`
 
 	PhoneNumber string `json:"phoneNumber"`
@@ -190,6 +192,7 @@ func main() {
 		})
 
 		protected.GET("/schedules", checkSchedule)
+
 		protected.POST("/create-folder", createFolder)
 		protected.POST("/delete-photo", deletePhoto)
 
@@ -225,6 +228,8 @@ func main() {
 		r.POST("/accept_application", acceptApplication)
 
 	}
+
+	r.GET("/generate-schedules", generateSchedules)
 
 	r.GET("/", LoggingMiddleware(), func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{"title": "TashFash"})
@@ -433,6 +438,44 @@ func getSchedules(date time.Time) ([]Schedule, error) {
 	}
 
 	return schedules, nil
+}
+
+func generateSchedules(c *gin.Context) {
+	query := "SELECT id, to_char(date, 'YYYY-MM-DD') as date, time, description, scheduled_by, name, email, phone_number FROM schedules ORDER BY date DESC"
+
+	rows, err := db.Query(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error querying database: " + err.Error(),
+		})
+		return
+	}
+	defer rows.Close()
+
+	var schedules []Schedule
+	for rows.Next() {
+		var schedule Schedule
+		// Scan all fields into the schedule struct
+		if err := rows.Scan(&schedule.ID, &schedule.Date, &schedule.Time, &schedule.Description,
+			&schedule.ScheduledBy, &schedule.Name, &schedule.Email, &schedule.PhoneNumber); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Error scanning data: " + err.Error(),
+			})
+			return
+		}
+		schedules = append(schedules, schedule)
+	}
+
+	if err = rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Row iteration error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"schedules": schedules,
+	})
 }
 
 // New handler to get all schedules for a given month
@@ -849,6 +892,7 @@ func checkSchedule(c *gin.Context) {
 
 	// Create time.Time object
 	date := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	fmt.Println(date)
 
 	// Query the database with the date
 	rows, err := db.Query(`SELECT * FROM schedules WHERE date = $1`, date)
