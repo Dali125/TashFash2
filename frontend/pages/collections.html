@@ -12,14 +12,8 @@
   <title>TashFash</title>
   <link rel="icon" type="image/png" href="/static/images/3.jpeg">
 
-  <!-- Owl Carousel stylesheet (if needed for sliders) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css" />
-
-  <!-- Custom styles for this template -->
-  <link rel="stylesheet" href="../static/css/style.css" />
-
-  <!-- Responsive style -->
-  <link href="/static/css/responsive.css" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
   <!-- HTMX for dynamic content loading -->
   <script src="https://unpkg.com/htmx.org@2.0.1"></script>
@@ -40,7 +34,7 @@
       scroll-behavior: smooth;
     }
 
-    /* Add responsive behavior for the navigation menu */
+    /* Responsive adjustments for smaller screens */
     @media (max-width: 768px) {
       #menu-toggle {
         display: block;
@@ -54,21 +48,10 @@
         display: block;
       }
     }
-
-    /* Responsive adjustments for smaller screens */
-    @media (max-width: 640px) {
-      .container {
-        padding: 4px;
-      }
-
-      .header-title {
-        font-size: 1.5rem;
-      }
-    }
   </style>
 </head>
 
-<body class="w-full h-screen scroll-smooth bg-white">
+<body class="w-full h-full scroll-smooth bg-gray-100">
   <!-- Mobile Header -->
   <header class="bg-black text-white md:hidden">
     <div class="flex justify-between items-center p-4">
@@ -102,7 +85,7 @@
   </header>
 
   <!-- Clothing Collection Section -->
-  <section class="h-full w-full ">
+  <section class="h-full w-full py-12">
     <div class="container mx-auto p-4 md:p-8">
       <h1 class="text-4xl font-bold mb-8 text-center md:text-left">Clothing Collections</h1>
       <div id="collection-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -110,6 +93,13 @@
       </div>
     </div>
   </section>
+
+  <!-- Footer -->
+  <footer class="bg-black text-white py-6 mt-8">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2024 TashFash. All rights reserved.</p>
+    </div>
+  </footer>
 
   <!-- JavaScript to handle menu toggle and fetching collection data -->
   <script>
@@ -133,20 +123,19 @@
 
           data.forEach(collection => {
             const collectionItem = document.createElement('div');
-            collectionItem.classList.add('p-4', 'rounded-lg', 'shadow-lg', 'flex', 'flex-col', 'w-full', 'h-auto');
+            collectionItem.classList.add('p-4', 'bg-white', 'rounded-lg', 'shadow-lg', 'hover:shadow-xl', 'transition', 'duration-300', 'flex', 'flex-col', 'w-full', 'h-auto');
 
             let imagesHtml = '';
             if (collection.images && collection.images.length > 0) {
               collection.images.forEach(image => {
-                imagesHtml += `<img src="${image.image_link}" alt="Image ${image.id}" class="w-full h-64 md:h-96 object-cover mt-4 rounded">`;
+                imagesHtml += `<img src="${image.image_link}" alt="Image ${image.id}" class="w-full h-64 md:h-80 object-cover mt-4 rounded">`;
               });
             } else {
               imagesHtml = '<p class="text-gray-500 mt-4">No images available.</p>';
             }
 
             collectionItem.innerHTML = `
-              <h2 class="text-2xl font-semibold ">${collection.collection_name}</h2>
-           
+              <h2 class="text-2xl font-semibold text-gray-800 mb-2">${collection.collection_name}</h2>
               ${imagesHtml}
             `;
             collectionList.appendChild(collectionItem);
@@ -158,7 +147,6 @@
     }
   </script>
 
-  <script src="/static/javascript/tailwind-config.js"></script>
 </body>
 
 </html>

@@ -19,13 +19,23 @@
             </div>
 
             <div>
+                <label for="discount_percentage" class="block text-sm font-medium text-gray-700">Discount Percentage (%)</label>
+                <input type="number" id="discount_percentage" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+            </div>
+
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" id="title" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter promotion title">
+            </div>
+
+            <div>
                 <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                <input type="text" id="description" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter new description">
+                <textarea id="description" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter promotion description"></textarea>
             </div>
 
             <div>
                 <label for="price" class="block text-sm font-medium text-gray-700">Price ($)</label>
-                <input type="number" id="price" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter new price">
+                <input type="number" id="price" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter price">
             </div>
 
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Update Promotion</button>
@@ -33,32 +43,30 @@
     </div>
 
     <script>
-
         document.addEventListener('DOMContentLoaded', function () {
             const id = getQueryParam('id');
             if (id) {
                 fetchPromotionById(id);
             }
-        })
-        // Function to get query parameters
+        });
+
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
 
-        // Fetch the promotion data based on ID
         async function fetchPromotionById(id) {
             try {
                 const response = await fetch(`/get-promotion?id=${id}`);
                 const promotion = await response.json();
-                console.log(promotion)
-
+                
                 if (!promotion) {
                     throw new Error('Promotion not found');
                 }
 
-                // Populate the form with current data
                 document.getElementById('current-image').src = promotion.image_url;
+                document.getElementById('discount_percentage').value = promotion.discount_percentage;
+                document.getElementById('title').value = promotion.title;
                 document.getElementById('description').value = promotion.description;
                 document.getElementById('price').value = promotion.price;
 
@@ -68,22 +76,23 @@
             }
         }
 
-        // Handle form submission for editing the promotion
         document.getElementById('edit-promotion-form').addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const id = getQueryParam('id');
             const imageInput = document.getElementById('image');
+            const discountPercentage = document.getElementById('discount_percentage').value;
+            const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const price = document.getElementById('price').value;
 
-            // Create FormData object to handle file uploads
             const formData = new FormData();
             formData.append('id', id);
+            formData.append('discount_percentage', discountPercentage);
+            formData.append('title', title);
             formData.append('description', description);
             formData.append('price', price);
 
-            // If a new image is uploaded, append it
             if (imageInput.files.length > 0) {
                 formData.append('image', imageInput.files[0]);
             }
@@ -105,8 +114,6 @@
                 console.error('Error:', error);
             }
         });
-
-      
     </script>
 
 </body>

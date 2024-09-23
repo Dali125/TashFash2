@@ -7,7 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-    <div class="fixed top-0 left-0 w-full h-20 flex items-center justify-center bg-black text-white"> <a href="/admin/dashboard">Back</a></div>
+    <div class="fixed top-0 left-0 w-full h-20 flex items-center justify-center bg-black text-white">
+        <a href="/admin/dashboard">Back</a>
+    </div>
 
     <div class="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-lg p-8 mt-24">
         <h1 class="text-2xl font-bold mb-6">Add Promotion</h1>
@@ -16,17 +18,28 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700">Promotion Image</label>
                 <input type="file" id="image" class="mt-1 block w-full" accept="image/*">
-                <img id="current-image" class="mt-4 w-full h-48 object-cover rounded-md">
+                <!-- Preview container for the uploaded image -->
+                <img id="image-preview" class="mt-4 w-full h-120 object-cover rounded-md hidden">
+            </div>
+
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" id="title" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter promotion title">
             </div>
 
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                <input type="text" id="description" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter new description">
+                <input type="text" id="description" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter promotion description">
             </div>
 
             <div>
                 <label for="price" class="block text-sm font-medium text-gray-700">Price ($)</label>
-                <input type="number" id="price" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter new price">
+                <input type="number" id="price" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter promotion price">
+            </div>
+
+            <div>
+                <label for="discount_percentage" class="block text-sm font-medium text-gray-700">Discount Percentage (%)</label>
+                <input type="number" id="discount_percentage" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" placeholder="Enter discount percentage">
             </div>
 
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add Promotion</button>
@@ -34,23 +47,42 @@
     </div>
 
     <script>
-        // Function to get query parameters
-       
-        // Fetch the promotion data based on ID
-        // Handle form submission for editing the promotion
+        // Handle image preview on file selection
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('image-preview');
+
+        imageInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                // Once the file is loaded, set it as the src of the image preview
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');  // Show the image
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle form submission for adding the promotion
         document.getElementById('add-promotion-form').addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const imageInput = document.getElementById('image');
+            const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const price = document.getElementById('price').value;
+            const discountPercentage = document.getElementById('discount_percentage').value;
 
             // Create FormData object to handle file uploads
             const formData = new FormData();
+            formData.append('title', title);
             formData.append('description', description);
             formData.append('price', price);
+            formData.append('discount_percentage', discountPercentage);
 
-            // If a new image is uploaded, append it
+            // Append the selected image to the form data
             if (imageInput.files.length > 0) {
                 formData.append('image', imageInput.files[0]);
             }
@@ -62,24 +94,16 @@
                 });
 
                 if (response.ok) {
-                    alert('Promotion updated successfully!');
+                    alert('Promotion added successfully!');
                     window.location.reload();
                 } else {
-                    throw new Error('Failed to update promotion');
+                    throw new Error('Failed to add promotion');
                 }
             } catch (error) {
-                alert('Error updating promotion. Please try again.');
+                alert('Error adding promotion. Please try again.');
                 console.error('Error:', error);
             }
         });
-
-        // Get the promotion ID from the query parameter and fetch the promotion data
-        const promotionId = getQueryParam('id');
-        if (promotionId) {
-            fetchPromotionById(promotionId);
-        } else {
-            alert('No promotion ID provided in URL');
-        }
     </script>
 
 </body>

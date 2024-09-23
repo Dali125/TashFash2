@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Promotions - TashFash</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-gray-900 text-white py-6 shadow-lg">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold text-center">Current Promotions</h1>
+            <p class="text-center text-gray-300">Check out the latest deals and offers at TashFash</p>
+        </div>
+    </header>
+
+    <!-- Promotions Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Promotion Card Template -->
+                <template x-for="promotion in promotions" :key="promotion.id">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                        <!-- Image -->
+                        <div class="relative h-56 bg-gray-200">
+                            <img :src="promotion.image" alt="Promotion Image" class="w-full h-full object-cover">
+                            <!-- Discount Tag -->
+                            <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded">Discount</span>
+                        </div>
+                        <!-- Promotion Info -->
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold mb-2 text-gray-900" x-text="promotion.title"></h2>
+                            <p class="text-gray-700 mb-4" x-text="promotion.description"></p>
+                            <!-- Price -->
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-gray-900" x-text="`$${promotion.price}`"></span>
+                                <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-700 transition">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Example Promotion Cards -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                    <div class="relative h-56 bg-gray-200">
+                        <img src="https://via.placeholder.com/300" alt="Promotion Image" class="w-full h-full object-cover">
+                        <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded">30% Off</span>
+                    </div>
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-900">Summer Collection</h2>
+                        <p class="text-gray-700 mb-4">Get the latest fashion at an unbeatable price with our summer collection.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold text-gray-900">$39.99</span>
+                            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-700 transition">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                    <div class="relative h-56 bg-gray-200">
+                        <img src="https://via.placeholder.com/300" alt="Promotion Image" class="w-full h-full object-cover">
+                        <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded">50% Off</span>
+                    </div>
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-900">Winter Sale</h2>
+                        <p class="text-gray-700 mb-4">Warm up your wardrobe with our exclusive winter sale offers.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold text-gray-900">$29.99</span>
+                            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-700 transition">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+                    <div class="relative h-56 bg-gray-200">
+                        <img src="https://via.placeholder.com/300" alt="Promotion Image" class="w-full h-full object-cover">
+                        <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded">15% Off</span>
+                    </div>
+                    <div class="p-6">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-900">Spring Arrivals</h2>
+                        <p class="text-gray-700 mb-4">Step into spring with our latest arrivals and enjoy special offers.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold text-gray-900">$49.99</span>
+                            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-700 transition">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-6">
+        <div class="container mx-auto text-center">
+            <p class="text-gray-400">&copy; 2024 TashFash. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

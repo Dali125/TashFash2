@@ -42,10 +42,12 @@ type Response struct {
 }
 
 type Promotion struct {
-	ID          int    `json:"id"`
-	Description string `json:"description"`
-	Price       string `json:"price"`
-	Image       string `json:"image_url"`
+	ID                 int     `json:"id"`
+	Title              string  `json:"title"`
+	Description        string  `json:"description"`
+	Price              float64 `json:"price"`
+	DiscountPercentage int     `json:"discount_percentage"`
+	Image              string  `json:"image_url"`
 }
 
 // Application represents an application entry
@@ -131,11 +133,13 @@ func main() {
 		"./frontend/pages/step2.html",
 		"./frontend/pages/upload.html",
 		"./frontend/pages/collections.html",
+		"./frontend/pages/contact.html",
 		"./frontend/pages/admin/admin-index.html",
 		"./frontend/pages/contact.html",
 		"./frontend/pages/admin/dashboard/login.html",
 		"./frontend/pages/admin/dashboard/dashboard.html",
 		"./frontend/pages/admin/dashboard/promotions.html",
+		"./frontend/pages/all_promotions.html",
 		"./frontend/pages/admin/dashboard/edit_promotion.html",
 		"./frontend/pages/admin/dashboard/add_promotions.html",
 		"./frontend/pages/admin/dashboard/view_application.html",
@@ -228,6 +232,9 @@ func main() {
 		r.POST("/accept_application", acceptApplication)
 
 	}
+	r.GET("/contact", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "contact.html", gin.H{"title": "TashFash"})
+	})
 
 	r.GET("/generate-schedules", generateSchedules)
 
@@ -255,6 +262,9 @@ func main() {
 	r.GET("/upload-test", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "upload.html", gin.H{"title": "TashFash"})
 	})
+	r.GET("/all-promotions", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "all_promotions.html", gin.H{"title": "TashFash"})
+	})
 	r.GET("/folder", folderHandler)
 	r.GET("/step2", step2Handler)
 	r.GET("/get_collections", getCollections)
@@ -262,12 +272,14 @@ func main() {
 	// POST Requests
 	r.POST("/submit-appointment", submitAppointment)
 	r.POST("/update-promotion", updatePromotion)
+	r.POST("add-promotion", addPromotion)
+	r.POST("delete-promotion", deletePromotion)
 	r.POST("/upload-image", uploadImage)
 	r.POST("/get_photos", getPhotos)
 	r.POST("/finalize", handleFinalize)
 	r.POST("/login", handleLogin)
 	r.POST("/register", handleRegister)
-	r.POST("add-promotion", addPromotion)
+
 	r.POST("/verify", handleVerify)
 	r.POST("/apply-now", func(ctx *gin.Context) {
 		ctx.Request.ParseForm()
@@ -320,7 +332,7 @@ func getPromotions(c *gin.Context) {
 	for rows.Next() {
 		var promoton Promotion
 
-		if err := rows.Scan(&promoton.ID, &promoton.Price, &promoton.Description, &promoton.Image); err != nil {
+		if err := rows.Scan(&promoton.ID, &promoton.Price, &promoton.Description, &promoton.Image, &promoton.Title, &promoton.DiscountPercentage); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan row"})
 			return
 		}
@@ -543,67 +555,72 @@ func getSchedulesForMonth(month, year int) ([]Schedule, error) {
 }
 
 func addPromotion(c *gin.Context) {
-
+	// Retrieve form data
 	price := c.PostForm("price")
 	description := c.PostForm("description")
+	title := c.PostForm("title")
+	discountPercentage := c.PostForm("discount_percentage")
 	file, err := c.FormFile("image")
 
-	fmt.Println(price, description, file.Filename)
+	// Log the form data for debugging
+	fmt.Println(price, description, title, discountPercentage, file.Filename)
 
+	// Handle errors in processing the image
 	if err != nil {
-		fmt.Errorf("Failed to process image")
+		fmt.Println("Failed to process image")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process image"})
 		return
 	}
 
+	// Open the uploaded image file
 	source, err := file.Open()
 	if err != nil {
-		fmt.Errorf("Failed to open image")
+		fmt.Println("Failed to open image")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open image", "file": file.Filename, "db_returns": err})
 		return
 	}
-
 	defer source.Close()
 
-	//GETTING THE CURRENT WORKING DIRECTORY
-
+	// Get the current working directory
 	myDIr, err2 := os.Getwd()
-
 	if err2 != nil {
 		log.Fatal(err2)
 	}
 	fmt.Println(myDIr)
 
+	// Create destination directory if it doesn't exist
 	destinationDirectory := filepath.Join(myDIr, "frontend/static/images")
-
 	if err := os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
-
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create directory"})
+		return
 	}
 
+	// Save the image to the destination
 	destination := filepath.Join(destinationDirectory, file.Filename)
-
 	if err := c.SaveUploadedFile(file, destination); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
 		return
 	}
 
+	// Store the image path in the database
 	db_image := "/static/images/" + file.Filename
-	_, storage_error := db.Exec(
-		`INSERT INTO "Promotion" 
-		 (price, description, image_url)
-		  VALUES ($1, $2, $3) `,
-		price, description, db_image)
-	if storage_error != nil {
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image", "file": file.Filename, "db_returns": storage_error})
+	// Insert promotion details into the database
+	_, storageError := db.Exec(
+		`INSERT INTO "Promotion" 
+		 (price, description, title, discount_percentage, image_link)
+		  VALUES ($1, $2, $3, $4, $5)`,
+		price, description, title, discountPercentage, db_image)
+
+	// Handle any error during the database insertion
+	if storageError != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save promotion", "file": file.Filename, "db_returns": storageError})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Image uploaded successfully", "file": file.Filename, "image_url": destination})
-
+	// Success response
+	c.JSON(http.StatusOK, gin.H{"message": "Promotion added successfully", "file": file.Filename, "image_url": db_image})
 	fmt.Println(file)
-
 }
 
 func getPhotos(c *gin.Context) {
@@ -1155,7 +1172,7 @@ func getPromotion(c *gin.Context) {
 
 	var promotion Promotion
 
-	err := db.QueryRow(`SELECT * FROM "Promotion" WHERE id=$1`, id).Scan(&promotion.ID, &promotion.Price, &promotion.Description, &promotion.Image)
+	err := db.QueryRow(`SELECT * FROM "Promotion" WHERE id=$1`, id).Scan(&promotion.ID, &promotion.Price, &promotion.Description, &promotion.Image, &promotion.Title, &promotion.DiscountPercentage)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -1168,52 +1185,65 @@ func getPromotion(c *gin.Context) {
 }
 
 func updatePromotion(c *gin.Context) {
-
 	fmt.Println("Update promotion called")
+
+	// Retrieve form data
 	id := c.PostForm("id")
 	price := c.PostForm("price")
 	description := c.PostForm("description")
+	title := c.PostForm("title")
+	discountPercentage := c.PostForm("discount_percentage")
 
+	// Log the form data
+	fmt.Println("Form Data:", price, description, title, discountPercentage)
+
+	// Handle image file upload (optional)
 	file, err := c.FormFile("image")
-	if err != nil {
-		log.Println("Failed to process image:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No image file provided"})
-		return
+	var imageLocation string
+
+	if err == nil { // If an image is provided
+		source, err := file.Open()
+		if err != nil {
+			log.Println("Failed to open image:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open image", "file": file.Filename})
+			return
+		}
+		defer source.Close()
+
+		// Get the current working directory
+		myDir, err2 := os.Getwd()
+		if err2 != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get working directory"})
+			return
+		}
+
+		destinationDirectory := filepath.Join(myDir, "frontend/static/images")
+		if err := os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create directory"})
+			return
+		}
+
+		destination := filepath.Join(destinationDirectory, file.Filename)
+		if err := c.SaveUploadedFile(file, destination); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
+			return
+		}
+
+		imageLocation = "/static/images/" + file.Filename
+	} else {
+		// No new image uploaded, keep the old one
+		imageLocation = "" // Handle as empty if no image is provided
 	}
 
-	fmt.Println("Form Data:", price, description, file.Filename)
-
-	source, err := file.Open()
-	if err != nil {
-		log.Println("Failed to open image:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open image", "file": file.Filename})
-		return
+	// Update the promotion in the database, including optional image if provided
+	query := `UPDATE "Promotion" 
+              SET price=$1, description=$2, title=$3, discount_percentage=$4, updated_at=NOW()`
+	if imageLocation != "" {
+		query += `, image_link=$5`
 	}
-	defer source.Close()
+	query += ` WHERE id=$6`
 
-	// GETTING THE CURRENT WORKING DIRECTORY
-	myDir, err2 := os.Getwd()
-	if err2 != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get working directory"})
-		return
-	}
-
-	destinationDirectory := filepath.Join(myDir, "frontend/static/images")
-	fmt.Println("Destination Directory:", destinationDirectory)
-	if err := os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create directory"})
-		return
-	}
-
-	destination := filepath.Join(destinationDirectory, file.Filename)
-	fmt.Println(destination, id)
-	if err := c.SaveUploadedFile(file, destination); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
-		return
-	}
-
-	image_location := "/static/images/" + file.Filename
-	_, err = db.Exec(`UPDATE "Promotion" SET price=$1, description=$2, image_url=$3 WHERE id=$4`, price, description, image_location, id)
+	_, err = db.Exec(query, price, description, title, discountPercentage, imageLocation, id)
 	if err != nil {
 		log.Println("Database error:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update promotion", "db_error": err.Error()})
@@ -1221,4 +1251,19 @@ func updatePromotion(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Promotion updated successfully"})
+}
+
+func deletePromotion(c *gin.Context) {
+	// Retrieve promotion ID from the URL parameter
+	id := c.Param("id")
+
+	// Delete the promotion from the database
+	_, err := db.Exec(`DELETE FROM "Promotion" WHERE id=$1`, id)
+	if err != nil {
+		log.Println("Database error:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete promotion", "db_error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Promotion deleted successfully"})
 }
